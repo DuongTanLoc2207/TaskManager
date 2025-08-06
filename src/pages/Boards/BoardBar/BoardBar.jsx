@@ -10,7 +10,6 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import { Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
-import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined'
 
 const MENU_STYLES = {
   color: 'white',
@@ -37,8 +36,8 @@ function BoardBar() {
       gap: 2,
       paddingX: 2,
       overflowX: 'auto',
-      bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
-      borderBottom: '1px solid white'
+      '&::-webkit-scrollbar-track': { m: 2 },
+      bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2')
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Chip
@@ -74,7 +73,7 @@ function BoardBar() {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Button 
+        <Button
           variant="outlined"
           startIcon={<PersonAddAltIcon/>}
           sx={{
@@ -94,7 +93,10 @@ function BoardBar() {
               width: 34,
               height: 34,
               fontSize: '16px',
-              border: 'none'
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              '&:fist-of-type': { bgcolor: '#a4b0be' }
             }
           }}
         >
