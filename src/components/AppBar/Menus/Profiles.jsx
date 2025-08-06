@@ -32,7 +32,7 @@ function Profiles() {
           aria-expanded={open ? 'true' : undefined}
         >
           <Avatar
-            sx={{ width: 30, height: 32 }}
+            sx={{ width: 36, height: 36 }}
             alt='Jojo Avartar'
             src='https://p16-sign-sg.tiktokcdn.com/tos-alisg-avt-0068/20975d452feac5b5f75d5ae30e90f54d~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=4c4d0cf4&x-expires=1754485200&x-signature=dVHjf%2F6zGzh8YOOHQYqMn89O3c8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1'
           />
