@@ -10,7 +10,6 @@ import AvatarGroup from '@mui/material/AvatarGroup'
 import { Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
-import { capitalizeFirstLetter } from '~/utils/formatters'
 
 const MENU_STYLES = {
   color: 'white',
@@ -26,7 +25,7 @@ const MENU_STYLES = {
   }
 }
 
-function BoardBar({ board }) {
+function BoardBar() {
   return (
     <Box sx={{
       width: '100%',
@@ -37,20 +36,20 @@ function BoardBar({ board }) {
       gap: 2,
       paddingX: 2,
       overflowX: 'auto',
-      '&::-webkit-scrollbar-track': { m: 2 },
-      bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2')
+      bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2'),
+      borderBottom: '1px solid white'
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Chip
           sx={MENU_STYLES}
           icon={<DashboardOutlinedIcon />}
-          label={board?.title}
+          label="Joji Board"
           clickable
         />
         <Chip
           sx={MENU_STYLES}
           icon={<VpnLockOutlinedIcon />}
-          label={capitalizeFirstLetter(board?.type)}
+          label="Public/Private Workspace"
           clickable
         />
         <Chip
@@ -94,10 +93,7 @@ function BoardBar({ board }) {
               width: 34,
               height: 34,
               fontSize: '16px',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              '&:fist-of-type': { bgcolor: '#a4b0be' }
+              border: 'none'
             }
           }}
         >
