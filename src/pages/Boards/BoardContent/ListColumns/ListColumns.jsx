@@ -7,7 +7,7 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 function ListColumns({ columns }) {
   return (
     /**
-     * SortableContext yêu cầu itém là một mảng dạng ['id-1', 'id-2'] chứ không phải [{id: 'id-1'}, {id: 'id-2'}],
+     * SortableContext yêu cầu item là một mảng dạng ['id-1', 'id-2'] chứ không phải [{id: 'id-1'}, {id: 'id-2'}],
      * nếu không đúng thì vẫn kéo thả đc nhưng không có animation
      */
     <SortableContext items={columns?.map(c => c._id)} strategy={horizontalListSortingStrategy}>
