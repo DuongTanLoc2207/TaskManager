@@ -278,7 +278,7 @@ function BoardContent({ board }) {
     // Tìm các điểm giao nhau, va chạm - intersections với con trỏ
     const pointerIntersections = pointerWithin(args)
 
-    // Fix bug flikering khi kéo card có cover lớn và kéo lên trên cùng ra khỏi khu vực kéo thả
+    // Fix bug flickering khi kéo card có cover lớn và kéo lên trên cùng ra khỏi khu vực kéo thả
     if (!pointerIntersections?.length) return
 
     // Thuật toán phát hiện va chạm sẽ trả về mảng các va chạm (intersections)
