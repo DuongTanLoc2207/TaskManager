@@ -15,8 +15,9 @@ import Button from '@mui/material/Button'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
-
 import { styled } from '@mui/material/styles'
+import { createNewBoardAPI } from '~/apis'
+
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -44,7 +45,7 @@ const BOARD_TYPES = {
  * Bản chất của cái component SidebarCreateBoardModal này sẽ trả về một cái SidebarItem để hiển thị ở màn Board List cho phù hợp giao diện bên đó, đồng thời nó cũng chứa thêm một cái Modal để xử lý riêng form create board.
  * Note: Modal là một low-component mà MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover.
  */
-function SidebarCreateBoardModal() {
+function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const { control, register, handleSubmit, reset, formState: { errors } } = useForm()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -55,12 +56,14 @@ function SidebarCreateBoardModal() {
     reset()
   }
 
-
   const submitCreateNewBoard = (data) => {
-    const { title, description, type } = data
-    console.log('Board title: ', title)
-    console.log('Board description: ', description)
-    console.log('Board type: ', type)
+    // const { title, description, type } = data
+    createNewBoardAPI(data).then(() => {
+      // Đóng Modal
+      handleCloseModal()
+      // Thông báo đến component cha để xử lý
+      afterCreateNewBoard()
+    })
   }
 
   return (
