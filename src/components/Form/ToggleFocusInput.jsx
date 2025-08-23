@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField'
 
 // Một Trick xử lý css khá hay trong việc làm UI UX khi cần ẩn hiện một cái input: Hiểu đơn giản là thay vì phải tạo biến State để chuyển đổi qua lại giữa thẻ Input và Text thông thường thì chúng ta sẽ CSS lại cho cái thẻ Input trông như text bình thường, chỉ khi click và focus vào nó thì style lại trở về như cái input ban đầu.
 // Controlled Component Input trong MUI: https://mui.com/material-ui/react-text-field/#uncontrolled-vs-controlled
-function ToggleFocusInput({ value, onChangedValue, inputFontSize = '16px', ...props }) {
+function ToggleFocusInput({ id, value, onChangedValue, inputFontSize = '16px', ...props }) {
   const [inputValue, setInputValue] = useState(value)
 
   // Blur là khi chúng ta không còn Focus vào phần tử nữa thì sẽ trigger hành động ở đây.
@@ -26,7 +26,7 @@ function ToggleFocusInput({ value, onChangedValue, inputFontSize = '16px', ...pr
 
   return (
     <TextField
-      id="toggle-focus-input-controlled"
+      id={id}
       fullWidth
       variant='outlined'
       size="small"

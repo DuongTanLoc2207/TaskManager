@@ -164,6 +164,7 @@ function Column({ column }) {
           justifyContent: 'space-between'
         }}>
           <ToggleFocusInput
+            id={`toggle-focus-input-${column._id}`}
             value={column?.title}
             onChangedValue={onUpdateColumnTitle}
             data-no-dnd="true"
