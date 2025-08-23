@@ -18,6 +18,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
+import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 
 function Board() {
   const dispatch = useDispatch()
@@ -97,6 +98,9 @@ function Board() {
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
+      {/* Modal Active Card, check đóng/mở dựa theo cái State isShowModalActiveCard lưu trong Redux */}
+      <ActiveCard/>
+
       <AppBar/>
       <BoardBar board={board} />
       <BoardContent

@@ -5,12 +5,11 @@ import VpnLockOutlinedIcon from '@mui/icons-material/VpnLockOutlined'
 import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
 import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
 import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined'
-import Avatar from '@mui/material/Avatar'
-import AvatarGroup from '@mui/material/AvatarGroup'
 import { Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt'
 import { capitalizeFirstLetter } from '~/utils/formatters'
+import BoardUserGroup from './BoardUserGroup'
 
 const MENU_STYLES = {
   color: 'white',
@@ -88,44 +87,9 @@ function BoardBar({ board }) {
           Invite
         </Button>
 
-        <AvatarGroup
-          max={3}
-          sx={{
-            gap: '10px',
-            '& .MuiAvatar-root': {
-              width: 34,
-              height: 34,
-              fontSize: '16px',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              '&:fist-of-type': { bgcolor: '#a4b0be' }
-            }
-          }}
-        >
-          <Tooltip title='Joji'>
-            <Avatar
-              alt="Joji"
-              src="https://p16-sign-sg.tiktokcdn.com/tos-alisg-avt-0068/20975d452feac5b5f75d5ae30e90f54d~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=4c4d0cf4&x-expires=1754485200&x-signature=dVHjf%2F6zGzh8YOOHQYqMn89O3c8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1" />
-          </Tooltip>
-          <Tooltip title='Joji'>
-            <Avatar
-              alt="Joji"
-              src="https://p16-sign-sg.tiktokcdn.com/tos-alisg-avt-0068/20975d452feac5b5f75d5ae30e90f54d~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=4c4d0cf4&x-expires=1754485200&x-signature=dVHjf%2F6zGzh8YOOHQYqMn89O3c8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1" />
-          </Tooltip>
-          <Tooltip title='Joji'>
-            <Avatar
-              alt="Joji"
-              src="https://p16-sign-sg.tiktokcdn.com/tos-alisg-avt-0068/20975d452feac5b5f75d5ae30e90f54d~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=4c4d0cf4&x-expires=1754485200&x-signature=dVHjf%2F6zGzh8YOOHQYqMn89O3c8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1" />
-          </Tooltip>
-          <Tooltip title='Joji'>
-            <Avatar
-              alt="Joji"
-              src="https://p16-sign-sg.tiktokcdn.com/tos-alisg-avt-0068/20975d452feac5b5f75d5ae30e90f54d~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=4c4d0cf4&x-expires=1754485200&x-signature=dVHjf%2F6zGzh8YOOHQYqMn89O3c8%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=sg1" />
-          </Tooltip>
-        </AvatarGroup>
+        {/* Xử lý hiển thị danh sách thành viên của board */}
+        <BoardUserGroup boardUsers={board?.FE_allUsers} />
       </Box>
-
     </Box>
   )
 }
