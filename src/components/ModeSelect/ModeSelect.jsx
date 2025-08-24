@@ -7,7 +7,6 @@ import Box from '@mui/material/Box'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness'
-import Fade from '@mui/material/Fade'
 
 function ModeSelect() {
   const { mode, setMode } = useColorScheme()
@@ -39,15 +38,6 @@ function ModeSelect() {
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'white' },
           '.MuiSvgIcon-root': { color: 'white' }
-        }}
-        MenuProps={{
-          sx: {
-            '& .MuiPaper-root': {
-              transition: 'none !important'
-            }
-          },
-          TransitionComponent: Fade,
-          transitionDuration: 200
         }}
       >
         <MenuItem value={'light'}>
