@@ -1,4 +1,5 @@
 import { experimental_extendTheme as extendTheme } from '@mui/material/styles'
+import Fade from '@mui/material/Fade'
 
 const APP_BAR_HEIGHT = '58px'
 const BOARD_BAR_HEIGHT = '60px'
@@ -75,6 +76,24 @@ const theme = extendTheme({
           '&:hover fieldset': { borderWidth: '1px !important' },
           '&.Mui-focused fieldset': { borderWidth: '1px !important' }
         }
+      }
+    },
+    MuiMenu: {
+      defaultProps: {
+        TransitionComponent: Fade,
+        transitionDuration: 200
+      }
+    },
+    MuiPopover: {
+      defaultProps: {
+        TransitionComponent: Fade,
+        transitionDuration: 200
+      }
+    },
+    MuiTooltip: {
+      defaultProps: {
+        TransitionComponent: Fade,
+        TransitionProps: { timeout: 200 }
       }
     }
   }

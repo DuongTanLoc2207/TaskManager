@@ -118,6 +118,11 @@ function ActiveCard() {
     )
   }
 
+  // Dùng async await ở đây để component con CardActivitySection chờ và nếu thành công thì mới clear thẻ input comment
+  const onAddCardComment = async (commentToAdd) => {
+    await callApiUpdateCard({ commentToAdd })
+  }
+
   return (
     <Modal
       disableScrollLock
@@ -197,7 +202,10 @@ function ActiveCard() {
               </Box>
 
               {/* Feature 04: Xử lý các hành động, ví dụ comment vào Card */}
-              <CardActivitySection />
+              <CardActivitySection
+                cardComments={activeCard?.comments}
+                onAddCardComment={onAddCardComment}
+              />
             </Box>
           </Grid>
 
