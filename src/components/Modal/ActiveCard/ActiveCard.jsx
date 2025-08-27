@@ -38,9 +38,16 @@ import {
   updateCurrentActiveCard,
   selectIsShowModalActiveCard
 } from '~/redux/activeCard/activeCardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { styled } from '@mui/material/styles'
 import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
+import ExitToAppIcon from '@mui/icons-material/ExitToApp'
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined'
+import { useConfirm } from 'material-ui-confirm'
+import { deleteCardDetailsAPI } from '~/apis'
+import { deleteCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -69,6 +76,8 @@ function ActiveCard() {
   const dispatch = useDispatch()
   const activeCard = useSelector(selectCurrentActiveCard)
   const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
+  const currentUser = useSelector(selectCurrentUser)
+  const confirm = useConfirm()
 
   // Dùng phần isShowModalActiveCard để check đóng mở
   // const [isOpen, setIsOpen] = useState(true)
@@ -123,11 +132,39 @@ function ActiveCard() {
     await callApiUpdateCard({ commentToAdd })
   }
 
+  const onUpdateCardMembers = (incomingMemberInfo) => {
+    callApiUpdateCard({ incomingMemberInfo })
+  }
+
+  const handleDeleteCard = () => {
+    confirm({
+      title: 'Delete Card?',
+      description: 'This action will permanently delete your Card! Are you sure?',
+      confirmationText: 'Confirm',
+      cancellationText: 'Cancel'
+    })
+      .then(() => {
+        // Gọi API xóa card
+        deleteCardDetailsAPI(activeCard._id).then(res => {
+          toast.success(res?.deleteResult)
+
+          // Cập nhật state board (xóa card khỏi column)
+          dispatch(deleteCardFromBoard({
+            cardId: activeCard._id,
+            columnId: activeCard.columnId
+          }))
+
+          // Đóng modal
+          dispatch(clearAndHideCurrentActiveCard())
+        })
+      }).catch(() => {})
+  }
+
   return (
     <Modal
       disableScrollLock
       open={isShowModalActiveCard}
-      onClose={handleCloseModal} // Sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
+      // onClose={handleCloseModal} // Sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
       sx={{ overflowY: 'auto' }}>
       <Box sx={{
         position: 'relative',
@@ -179,7 +216,10 @@ function ActiveCard() {
               <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Members</Typography>
 
               {/* Feature 02: Xử lý các thành viên của Card */}
-              <CardUserGroup />
+              <CardUserGroup
+                cardMemberIds={activeCard?.memberIds}
+                onUpdateCardMembers={onUpdateCardMembers}
+              />
             </Box>
 
             <Box sx={{ mb: 3 }}>
@@ -214,10 +254,33 @@ function ActiveCard() {
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Add To Card</Typography>
             <Stack direction="column" spacing={1}>
               {/* Feature 05: Xử lý hành động bản thân user tự join vào card */}
-              <SidebarItem className="active">
-                <PersonOutlineOutlinedIcon fontSize="small" />
-                Join
-              </SidebarItem>
+              {/* Nếu user hiện tại đang đăng nhập chưa thuộc mảng memberIds của card thì mới cho hiện nút Join và ngược lại */}
+              {activeCard?.memberIds?.includes(currentUser._id)
+                ? <SidebarItem
+                  sx={{ color: 'error.light', '&:hover': { color: 'error.light' } }}
+                  onClick={() => onUpdateCardMembers({
+                    userId: currentUser._id,
+                    action: CARD_MEMBER_ACTIONS.REMOVE
+                  })}
+                >
+                  <ExitToAppIcon fontSize="small" />
+                  Leave
+                </SidebarItem>
+                : <SidebarItem
+                  className="active"
+                  onClick={() => onUpdateCardMembers({
+                    userId: currentUser._id,
+                    action: CARD_MEMBER_ACTIONS.ADD
+                  })}
+                >
+                  <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <PersonOutlineOutlinedIcon fontSize="small" />
+                      <span>Join</span>
+                    </Box>
+                  </Box>
+                </SidebarItem>
+              }
               {/* Feature 06: Xử lý hành động cập nhật ảnh Cover của Card */}
               <SidebarItem className="active" component="label">
                 <ImageOutlinedIcon fontSize="small" />
@@ -245,7 +308,19 @@ function ActiveCard() {
 
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Actions</Typography>
             <Stack direction="column" spacing={1}>
-              <SidebarItem><ArrowForwardOutlinedIcon fontSize="small" />Move</SidebarItem>
+              <SidebarItem
+                onClick={handleDeleteCard}
+                sx={{
+                  color: 'error.light',
+                  '&:hover': {
+                    color: 'error.main',
+                    backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#d32f2f33' : '#ffebee' 
+                  }
+                }}
+              >
+                <DeleteOutlineOutlinedIcon fontSize="small" />
+                Delete
+              </SidebarItem>
               <SidebarItem><ContentCopyOutlinedIcon fontSize="small" />Copy</SidebarItem>
               <SidebarItem><AutoAwesomeOutlinedIcon fontSize="small" />Make Template</SidebarItem>
               <SidebarItem><ArchiveOutlinedIcon fontSize="small" />Archive</SidebarItem>

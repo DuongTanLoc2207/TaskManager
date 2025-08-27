@@ -4,6 +4,7 @@ import { API_ROOT } from '~/utils/constants'
 import { mapOrder } from '~/utils/sorts'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
+import { normalizeBoard } from '~/utils/boardHelpers'
 
 // Khởi tạo giá trị State của Slice trong redux
 const initialState = {
@@ -48,42 +49,35 @@ export const activeBoardSlice = createSlice({
           })
         }
       }
+    },
+    // Reducer mới để update board sau khi thêm/xoá member
+    updateBoardInStore: (state, action) => {
+      const board = action.payload
+      state.currentActiveBoard = normalizeBoard(board)
+    },
+    // Thêm action xóa card
+    deleteCardFromBoard: (state, action) => {
+      const { cardId, columnId } = action.payload
+      const column = state.currentActiveBoard.columns.find(col => col._id === columnId)
+      if (column) {
+        column.cards = column.cards.filter(card => card._id !== cardId)
+        column.cardOrderIds = column.cardOrderIds.filter(id => id !== cardId)
+      }
     }
   },
 
   // ExtraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
     builder.addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
-      // action.payload ở đây là response.data trả về ở trên
-      let board = action.payload
-
-      // Thành viên trong board sẽ là gộp lại của 2 mảng owners và members
-      board.FE_allUsers = board.owners.concat(board.members)
-
-      // Xử lý dữ liệu nếu cần thiết
-      // Sắp xếp column trước khi đưa dữ liệu xuống các component con
-      board.columns = mapOrder(board.columns, board.columnOrderIds, '_id')
-
-      board.columns.forEach(column => {
-        // khi reload cần xử lý vấn đề kéo thả vào column rỗng
-        if (isEmpty(column.cards)) {
-          column.cards = [generatePlaceholderCard(column)]
-          column.cardOrderIds = [generatePlaceholderCard(column)._id]
-        } else {
-        // Sắp xếp card trước khi đưa dữ liệu xuống các component con
-          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
-        }
-      })
-
-      // Update lại dữ liệu của currentActiveBoard
-      state.currentActiveBoard = board
+      const board = action.payload
+      state.currentActiveBoard = normalizeBoard(board)
     })
   }
 
 })
 
 // Actions: cập nhật lại dữ liệu thông qua reducer (đồng bộ)
-export const { updateCurrentActiveBoard, updateCardInBoard } = activeBoardSlice.actions
+export const { updateCurrentActiveBoard, updateCardInBoard, updateBoardInStore, deleteCardFromBoard } = activeBoardSlice.actions
 
 // Selectors: lấy dữ liệu trong redux store
 export const selectCurrentActiveBoard = (state) => {

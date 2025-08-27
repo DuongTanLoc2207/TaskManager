@@ -40,6 +40,11 @@ export const createNewCardAPI = async (newCardData) => {
   return response.data
 }
 
+export const deleteCardDetailsAPI = async (cardId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cards/${cardId}`)
+  return response.data
+}
+
 /** Users */
 export const registerUserAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, data)

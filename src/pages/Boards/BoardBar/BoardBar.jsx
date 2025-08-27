@@ -9,6 +9,9 @@ import { Tooltip } from '@mui/material'
 import { capitalizeFirstLetter } from '~/utils/formatters'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
+import { useDispatch } from 'react-redux'
+import { updateBoardInStore } from '~/redux/activeBoard/activeBoardSlice'
+import { updateBoardDetailsAPI } from '~/apis'
 
 const MENU_STYLES = {
   color: 'white',
@@ -25,6 +28,19 @@ const MENU_STYLES = {
 }
 
 function BoardBar({ board }) {
+  const dispatch = useDispatch()
+
+  const handleUpdateBoardUsers = async (incomingMemberInfo) => {
+    try {
+      console.log('Update board user:', incomingMemberInfo);
+      const updatedBoard = await updateBoardDetailsAPI(board._id, { incomingMemberInfo });
+      console.log('Updated board:', updatedBoard);
+      dispatch(updateBoardInStore(updatedBoard));
+    } catch (error) {
+      console.error('Error updating board users:', error);
+    }
+  };
+
   return (
     <Box sx={{
       width: '100%',
@@ -78,7 +94,10 @@ function BoardBar({ board }) {
         <InviteBoardUser boardId={board._id} />
 
         {/* Xử lý hiển thị danh sách thành viên của board */}
-        <BoardUserGroup boardUsers={board?.FE_allUsers} />
+        <BoardUserGroup
+          boardUsers={board?.FE_allUsers}
+          onUpdateBoardUsers={handleUpdateBoardUsers}
+        />
       </Box>
     </Box>
   )
