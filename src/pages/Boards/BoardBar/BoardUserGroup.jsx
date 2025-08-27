@@ -3,12 +3,9 @@ import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
 import Popover from '@mui/material/Popover'
+import MenuItem from '@mui/material/MenuItem'
 
-function BoardUserGroup({ boardUsers = [], limit = 6 }) {
-  /**
-   * Xử lý Popover để ẩn hoặc hiện toàn bộ user trên một cái popup, docs tham khảo ở đây:
-   * https://mui.com/material-ui/react-popover/
-   */
+function BoardUserGroup({ boardUsers = [], limit = 6, onUpdateBoardUsers }) {
   const [anchorPopoverElement, setAnchorPopoverElement] = useState(null)
   const isOpenPopover = Boolean(anchorPopoverElement)
   const popoverId = isOpenPopover ? 'board-all-users-popover' : undefined
@@ -17,25 +14,48 @@ function BoardUserGroup({ boardUsers = [], limit = 6 }) {
     else setAnchorPopoverElement(null)
   }
 
-  // Lưu ý ở đây chúng ta không dùng Component AvatarGroup của MUI bởi nó không hỗ trợ tốt trong việc chúng ta cần custom & trigger xử lý phần tử tính toán cuối, đơn giản là cứ dùng Box và CSS - Style đám Avatar cho chuẩn kết hợp tính toán một chút thôi.
+  // State cho popup xóa user
+  const [anchorUserPopover, setAnchorUserPopover] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
+
+  const handleClickUser = (event, user) => {
+    setAnchorUserPopover(event.currentTarget)
+    setSelectedUser(user)
+  }
+
+  const handleCloseUserPopover = () => {
+    setAnchorUserPopover(null)
+    setSelectedUser(null)
+  }
+
+  const handleRemoveUser = () => {
+    const incomingMemberInfo = {
+      userId: selectedUser?._id,
+      action: 'REMOVE'
+    }
+    onUpdateBoardUsers(incomingMemberInfo)
+    handleCloseUserPopover()
+  }
+
   return (
     <Box sx={{ display: 'flex', gap: '4px' }}>
-      {/* Hiển thị giới hạn số lượng user theo số limit */}
+      {/* Hiển thị giới hạn số lượng user */}
       {boardUsers.map((user, index) => {
         if (index < limit) {
           return (
             <Tooltip title={user?.displayName} key={index}>
               <Avatar
                 sx={{ width: 34, height: 34, cursor: 'pointer' }}
-                alt="Joji"
+                alt={user?.displayName}
                 src={user?.avatar}
+                onClick={(e) => handleClickUser(e, user)}
               />
             </Tooltip>
           )
         }
       })}
 
-      {/* Nếu số lượng users nhiều hơn limit thì hiện thêm +number */}
+      {/* Nếu nhiều hơn limit thì hiện nút + */}
       {boardUsers.length > limit &&
         <Tooltip title="Show more">
           <Box
@@ -60,7 +80,7 @@ function BoardUserGroup({ boardUsers = [], limit = 6 }) {
         </Tooltip>
       }
 
-      {/* Khi Click vào +number ở trên thì sẽ mở popover hiện toàn bộ users, sẽ không limit nữa */}
+      {/* Popover cũ hiển thị toàn bộ users */}
       <Popover
         id={popoverId}
         open={isOpenPopover}
@@ -73,12 +93,25 @@ function BoardUserGroup({ boardUsers = [], limit = 6 }) {
             <Tooltip title={user?.displayName} key={index}>
               <Avatar
                 sx={{ width: 34, height: 34, cursor: 'pointer' }}
-                alt="Joji"
+                alt={user?.displayName}
                 src={user?.avatar}
+                onClick={(e) => handleClickUser(e, user)}
               />
             </Tooltip>
           )}
         </Box>
+      </Popover>
+
+      {/* Popover phụ để xác nhận xóa user */}
+      <Popover
+        open={Boolean(anchorUserPopover)}
+        anchorEl={anchorUserPopover}
+        onClose={handleCloseUserPopover}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MenuItem onClick={handleRemoveUser} sx={{ color: 'red' }}>
+          Xóa {selectedUser?.displayName} khỏi board
+        </MenuItem>
       </Popover>
     </Box>
   )
