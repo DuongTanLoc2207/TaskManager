@@ -16,7 +16,6 @@ import AutoFixHighOutlinedIcon from '@mui/icons-material/AutoFixHighOutlined'
 import AspectRatioOutlinedIcon from '@mui/icons-material/AspectRatioOutlined'
 import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined'
-import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined'
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined'
 import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined'
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined'
@@ -191,7 +190,14 @@ function ActiveCard() {
         {activeCard?.cover &&
           <Box sx={{ mb: 4 }}>
             <img
-              style={{ width: '100%', height: '320px', borderRadius: '6px', objectFit: 'cover' }}
+              style={{
+                display: 'block',
+                width: '100%',
+                height: 'auto',
+                maxHeight: '60vh',
+                borderRadius: '6px',
+                objectFit: 'cover'
+              }}
               src={activeCard?.cover}
               alt="card-cover"
             />

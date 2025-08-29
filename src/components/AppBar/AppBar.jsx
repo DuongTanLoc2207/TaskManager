@@ -16,8 +16,15 @@ import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined'
 import { Link } from 'react-router-dom'
 import Notifications from './Notifications/Notifications'
 import AutoCompleteSearchBoard from './SearchBoards/AutoCompleteSearchBoard'
+import { useSelector } from 'react-redux'
+import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 function AppBar() {
+  const currentActiveBoard = useSelector(selectCurrentActiveBoard)
+
+  // Xác định đường dẫn cho logo: nếu có board hiện tại, dùng boardId, nếu không, về /boards
+  const logoLink = currentActiveBoard?._id ? `/boards/${currentActiveBoard._id}` : '/boards'
+
   return (
     <Box sx={{
       width: '100%',
@@ -32,12 +39,12 @@ function AppBar() {
       bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#2c3e50' : '#1565c0')
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Link to='/Boards'>
+        <Link to='/boards'>
           <Tooltip title='Board List'>
             <AppsIcon sx={{ color: 'white', verticalAlign: 'middle' }}/>
           </Tooltip>
         </Link>
-        <Link to='/'>
+        <Link to={logoLink}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <SvgIcon component={TrelloIcon} inheritViewBox fontSize='small' sx={{ color: 'white' }}/>
             <Typography variant='span' sx={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'white' }}>Joji</Typography>

@@ -33,7 +33,8 @@ const theme = extendTheme({
             borderRadius: '8px'
           },
           '*::-webkit-scrollbar-thumb:hover': {
-            backgroundColor:'white'
+            backgroundColor:'white',
+            cursor: 'pointer'
           }
         }
       }

@@ -7,6 +7,8 @@ import PasswordIcon from '@mui/icons-material/Password'
 import LockResetIcon from '@mui/icons-material/LockReset'
 import LockIcon from '@mui/icons-material/Lock'
 import LogoutIcon from '@mui/icons-material/Logout'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 import { FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
@@ -15,10 +17,42 @@ import { useConfirm } from 'material-ui-confirm'
 import { useDispatch } from 'react-redux'
 import { updateUserAPI, logoutUserAPI } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
+import { useState } from 'react'
+import { useTheme } from '@mui/material/styles'
 
 function SecurityTab() {
   const dispatch = useDispatch()
   const { register, handleSubmit, watch, formState: { errors } } = useForm()
+  const theme = useTheme()
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const iconStyle = {
+    color: theme.palette.mode === 'dark' ? theme.palette.text.primary : '#636e72'
+  }
+
+  const handleClickShowPassword = (field) => () => {
+    switch (field) {
+    case 'current_password':
+      setShowCurrentPassword((prev) => !prev)
+      break
+    case 'new_password':
+      setShowNewPassword((prev) => !prev)
+      break
+    case 'new_password_confirmation':
+      setShowConfirmPassword((prev) => !prev)
+      break
+    default:
+      break
+    }
+  }
+
+  // Ngăn focus nhảy khi click icon
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault()
+  }
 
   // Ôn lại: https://www.npmjs.com/package/material-ui-confirm
   const confirmChangePassword = useConfirm()
@@ -73,12 +107,23 @@ function SecurityTab() {
               <TextField
                 fullWidth
                 label="Current Password"
-                type="password"
+                type={showCurrentPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <PasswordIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword('current_password')}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showCurrentPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
                     </InputAdornment>
                   )
                 }}
@@ -98,12 +143,23 @@ function SecurityTab() {
               <TextField
                 fullWidth
                 label="New Password"
-                type="password"
+                type={showNewPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword('new_password')}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showNewPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
                     </InputAdornment>
                   )
                 }}
@@ -123,12 +179,23 @@ function SecurityTab() {
               <TextField
                 fullWidth
                 label="New Password Confirmation"
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockResetIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword('new_password_confirmation')}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showConfirmPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
                     </InputAdornment>
                   )
                 }}

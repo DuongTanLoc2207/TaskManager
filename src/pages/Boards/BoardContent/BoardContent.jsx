@@ -1,3 +1,4 @@
+import { socketIoInstance } from '~/socketClient'
 import Box from '@mui/material/Box'
 import ListColumns from './ListColumns/ListColumns'
 
@@ -57,6 +58,89 @@ function BoardContent({
     // Column đã đc sắp xếp ở component cha
     setOrderedColumns(board.columns)
   }, [board])
+
+  useEffect(() => {
+    socketIoInstance.on('BE_COLUMN_MOVED', (data) => {
+      if (data.boardId !== board._id) return // Chỉ xử lý nếu đúng board
+
+      if (data.actor !== socketIoInstance.id) { // Không phải thay đổi của mình → sync từ BE
+        // Update orderedColumns dựa trên columnOrderIds mới
+        const newOrderedColumns = data.columnOrderIds.map(id =>
+          orderedColumns.find(col => col._id === id) || {} // Fallback nếu column mới
+        ).filter(col => col._id) // Lọc rỗng nếu có
+
+        setOrderedColumns(newOrderedColumns)
+      }
+    })
+
+    return () => {
+      socketIoInstance.off('BE_COLUMN_MOVED')
+    }
+  }, [orderedColumns, board._id])
+
+  useEffect(() => {
+    socketIoInstance.on('BE_CARD_MOVED', (data) => {
+      if (data.boardId !== board._id || data.actor === socketIoInstance.id) return
+
+      setOrderedColumns(prevColumns => {
+        const nextColumns = cloneDeep(prevColumns)
+
+        // Cập nhật cột cũ (prevColumn)
+        const prevColumn = nextColumns.find(c => c._id === data.prevColumnId)
+        if (prevColumn) {
+          prevColumn.cards = data.prevCardOrderIds.map(cardId =>
+            prevColumn.cards.find(card => card._id === cardId) || { _id: cardId }
+          ).filter(card => card._id)
+          prevColumn.cardOrderIds = data.prevCardOrderIds
+          if (isEmpty(prevColumn.cards)) {
+            prevColumn.cards = [generatePlaceholderCard(prevColumn)]
+            prevColumn.cardOrderIds = [prevColumn.cards[0]._id]
+          }
+        }
+
+        // Cập nhật cột mới (nextColumn)
+        const nextColumn = nextColumns.find(c => c._id === data.nextColumnId)
+        if (nextColumn) {
+          // Sử dụng cardData từ server để đảm bảo dữ liệu đầy đủ
+          nextColumn.cards = data.nextCardOrderIds.map(cardId => {
+            if (cardId === data.currentCardId) {
+              return { ...data.cardData, columnId: data.nextColumnId }
+            }
+            return nextColumn.cards.find(card => card._id === cardId) || { _id: cardId }
+          }).filter(card => card._id)
+          nextColumn.cardOrderIds = data.nextCardOrderIds
+        }
+
+        return nextColumns
+      })
+    })
+
+    return () => {
+      socketIoInstance.off('BE_CARD_MOVED')
+    }
+  }, [board._id])
+
+  useEffect(() => {
+    socketIoInstance.on('BE_CARD_MOVED_IN_COLUMN', (data) => {
+      if (data.boardId !== board._id || data.actor === socketIoInstance.id) return
+
+      setOrderedColumns(prevColumns => {
+        const nextColumns = cloneDeep(prevColumns)
+        const targetColumn = nextColumns.find(c => c._id === data.columnId)
+        if (targetColumn) {
+          targetColumn.cards = data.cardOrderIds.map(cardId =>
+            targetColumn.cards.find(card => card._id === cardId) || { _id: cardId }
+          ).filter(card => card._id)
+          targetColumn.cardOrderIds = data.cardOrderIds
+        }
+        return nextColumns
+      })
+    })
+
+    return () => {
+      socketIoInstance.off('BE_CARD_MOVED_IN_COLUMN')
+    }
+  }, [board._id])
 
   // Tìm column theo cardId
   const findColumnsByCardId = (cardId) => {
@@ -271,6 +355,13 @@ function BoardContent({
 
         // Dùng arrayMove để sắp xếp mảng Columns ban đầu
         const dndOrderedColumns = arrayMove(orderedColumns, oldColumnIndex, newColumnIndex)
+
+        // Emit đến BE sau khi update local
+        const newColumnOrderIds = dndOrderedColumns.map(c => c._id)
+        socketIoInstance.emit('FE_COLUMN_MOVED', {
+          boardId: board._id,
+          columnOrderIds: newColumnOrderIds
+        })
 
         // Cập nhật lại state column tránh delay hoặc flickering khi chờ gọi API
         setOrderedColumns(dndOrderedColumns)

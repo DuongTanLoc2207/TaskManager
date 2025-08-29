@@ -13,7 +13,6 @@ import HomeIcon from '@mui/icons-material/Home'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
 import Pagination from '@mui/material/Pagination'
 import PaginationItem from '@mui/material/PaginationItem'
 import { Link, useLocation } from 'react-router-dom'
@@ -24,8 +23,7 @@ import { styled } from '@mui/material/styles'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 import { toast } from 'react-toastify'
 import { useConfirm } from 'material-ui-confirm'
-
-// ⬇️ Thêm các import phục vụ dropdown giống Column
+import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import Tooltip from '@mui/material/Tooltip'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Menu from '@mui/material/Menu'
@@ -55,6 +53,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 function Boards() {
   const [boards, setBoards] = useState(null)
   const [totalBoards, setTotalBoards] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   const location = useLocation()
   const query = new URLSearchParams(location.search)
@@ -83,7 +82,10 @@ function Boards() {
   }
 
   useEffect(() => {
-    fetchBoardsAPI(location.search).then(updateStateData)
+    setLoading(true)
+    fetchBoardsAPI(location.search)
+      .then(updateStateData)
+      .finally(() => setLoading(false))
   }, [location.search])
 
   const afterCreateNewBoard = () => {
@@ -106,7 +108,20 @@ function Boards() {
       .catch(() => {})
   }
 
-  if (!boards) {
+  const handleUpdateBoard = async (boardId, data) => {
+    try {
+      const updatedBoard = await updateBoardDetailsAPI(boardId, data)
+      // Cập nhật lại state local (boards)
+      setBoards(prev =>
+        prev.map(b => (b._id === boardId ? { ...b, ...updatedBoard } : b))
+      )
+      toast.success('Board updated successfully!')
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
+
+  if (loading || !boards) {
     return <PageLoadingSpinner caption="Loading Boards..." />
   }
 
@@ -158,9 +173,14 @@ function Boards() {
                         <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
                           {/* Header: title và icon More ngang hàng */}
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-                            <Typography gutterBottom variant="h6" component="div" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {b?.title}
-                            </Typography>
+                            {/* Title editable */}
+                            <ToggleFocusInput
+                              id={`board-title-${b._id}`}
+                              value={b?.title}
+                              inputFontSize="18px"
+                              inputFontWeight="500"
+                              onChangedValue={(newTitle) => handleUpdateBoard(b._id, { title: newTitle })}
+                            />
 
                             <Tooltip title="More options">
                               <ExpandMoreIcon
@@ -174,14 +194,14 @@ function Boards() {
                             </Tooltip>
                           </Box>
 
-                          {/* description */}
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', mt: 1 }}
-                          >
-                            {b?.description}
-                          </Typography>
+                          {/* Description editable */}
+                          <ToggleFocusInput
+                            id={`board-desc-${b._id}`}
+                            value={b?.description || ''}
+                            inputFontSize="14px"
+                            inputFontWeight="400"
+                            onChangedValue={(newDesc) => handleUpdateBoard(b._id, { description: newDesc })}
+                          />
 
                           {/* footer: link to board */}
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: 1 }}>

@@ -1,9 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
-import { mapOrder } from '~/utils/sorts'
-import { generatePlaceholderCard } from '~/utils/formatters'
-import { isEmpty } from 'lodash'
 import { normalizeBoard } from '~/utils/boardHelpers'
 
 // Khởi tạo giá trị State của Slice trong redux
@@ -68,12 +65,20 @@ export const activeBoardSlice = createSlice({
 
   // ExtraReducers: nơi xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
-    builder.addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
-      const board = action.payload
-      state.currentActiveBoard = normalizeBoard(board)
-    })
+    builder
+      .addCase(fetchBoardDetailsAPI.pending, (state) => {
+        // Reset về null ngay khi bắt đầu load board mới
+        state.currentActiveBoard = null
+      })
+      .addCase(fetchBoardDetailsAPI.fulfilled, (state, action) => {
+        const board = action.payload
+        state.currentActiveBoard = normalizeBoard(board)
+      })
+      .addCase(fetchBoardDetailsAPI.rejected, (state) => {
+        // Nếu lỗi cũng reset null
+        state.currentActiveBoard = null
+      })
   }
-
 })
 
 // Actions: cập nhật lại dữ liệu thông qua reducer (đồng bộ)
