@@ -22,16 +22,24 @@ import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useDispatch } from 'react-redux'
 import { loginUserAPI } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
+import { useState, useRef } from 'react'
+import InputAdornment from '@mui/material/InputAdornment'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 function LoginForm() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+
+  const [showPassword, setShowPassword] = useState(false)
+  const iconStyle = { color : '#636e72' }
 
   const { register, handleSubmit, formState: { errors } } = useForm()
   let [searchParams] = useSearchParams()
   const registeredEmail = searchParams.get('registeredEmail')
   const verifiedEmail = searchParams.get('verifiedEmail')
 
+  const passwordRef = useRef(null)
 
   const submitLogIn = (data) => {
     const { email, password } = data
@@ -43,6 +51,25 @@ function LoginForm() {
       // console.log('🚀 ~ submitLogIn ~ res:', res)
       if (!res.error) navigate('/')
     })
+  }
+
+  const handleClickShowPassword = () => {
+    if (passwordRef.current) {
+      const input = passwordRef.current
+      const cursorPos = input.selectionStart // lưu vị trí con trỏ
+      setShowPassword(prev => !prev)
+      setTimeout(() => {
+        input.focus()
+        input.setSelectionRange(cursorPos, cursorPos) // restore caret
+      }, 0)
+    } else {
+      setShowPassword(prev => !prev)
+    }
+  }
+
+  // Ngăn focus nhảy khi click icon
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault()
   }
 
   return (
@@ -97,9 +124,23 @@ function LoginForm() {
               <TextField
                 fullWidth
                 label="Enter Password..."
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
+                inputRef={passwordRef}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
+                    </InputAdornment>
+                  )
+                }}
                 {...register('password', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -124,7 +165,7 @@ function LoginForm() {
             </Button>
           </CardActions>
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>New to Trello MERN Stack Advanced?</Typography>
+            <Typography>New to Joji?</Typography>
             <Link to="/register" style={{ textDecoration: 'none' }}>
               <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Create account!</Typography>
             </Link>

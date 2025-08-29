@@ -116,6 +116,31 @@ function Notifications() {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        PaperProps={{
+          sx: {
+            px: 0.5,
+            py: 1,
+            '& .MuiMenu-list': {
+              maxHeight: 500,
+              overflowY: 'auto',
+              p: 0,
+              pr: 1,
+              outline: 'none',
+              scrollbarGutter: 'stable',
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#d0d7de',
+                borderRadius: '8px'
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: '#96a0aa',
+                cursor: 'pointer'
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f6f8fa'
+              }
+            }
+          }
+        }}
         MenuListProps={{ 'aria-labelledby': 'basic-button-open-notification' }}
       >
         {(!notifications || notifications.length === 0) &&

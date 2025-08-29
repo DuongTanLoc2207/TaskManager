@@ -1,3 +1,4 @@
+import { socketIoInstance } from '~/socketClient'
 import { useEffect } from 'react'
 import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
@@ -33,6 +34,16 @@ function Board() {
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
 
+  useEffect(() => {
+    if (board?._id) { // Chỉ join nếu board đã load
+      socketIoInstance.emit('FE_JOIN_BOARD', board._id)
+    }
+
+    return () => {
+      socketIoInstance.off('BE_COLUMN_MOVED') // Cleanup để tránh memory leak
+    }
+  }, [board])
+
   // Func gọi API và xử lý kéo thả column
   const moveColumns = (dndOrderedColumns) => {
     // Update dữ liệu state board
@@ -60,6 +71,14 @@ function Board() {
     // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
 
+    // Emit sự kiện Socket.IO
+    socketIoInstance.emit('FE_CARD_MOVED_IN_COLUMN', {
+      boardId: board._id,
+      columnId,
+      cardOrderIds: dndOrderedCardIds,
+      actor: socketIoInstance.id
+    })
+
     // Gọi API update column
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
   }
@@ -80,6 +99,16 @@ function Board() {
     if (prevCardOrderIds[0].includes('placeholder-card') ) {
       prevCardOrderIds = []
     }
+
+    socketIoInstance.emit('FE_CARD_MOVED', {
+      boardId: board._id,
+      currentCardId,
+      prevColumnId,
+      prevCardOrderIds,
+      nextColumnId,
+      nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds,
+      actor: socketIoInstance.id // Gửi socket.id của client
+    })
 
     moveCardToDifferentColumnAPI({
       currentCardId,

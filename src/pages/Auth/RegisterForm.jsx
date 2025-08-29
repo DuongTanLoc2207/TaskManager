@@ -20,10 +20,21 @@ import {
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { registerUserAPI } from '~/apis'
 import { toast } from 'react-toastify'
+import { useState, useRef } from 'react'
+import InputAdornment from '@mui/material/InputAdornment'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 function RegisterForm() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
   const navigate = useNavigate()
+
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const iconStyle = { color : '#636e72' }
+
+  const passwordRef = useRef(null)
+  const confirmRef = useRef(null)
 
   const submitRegister = (data) => {
     const { email, password } = data
@@ -33,6 +44,27 @@ function RegisterForm() {
     ).then(user => {
       navigate(`/login?registeredEmail=${user.email}`)
     })
+  }
+
+  const handleClickShowPassword = (field) => () => {
+    let input
+    if (field === 'password') input = passwordRef.current
+    if (field === 'password_confirmation') input = confirmRef.current
+    if (!input) return
+
+    const cursorPos = input.selectionStart
+    if (field === 'password') setShowPassword(prev => !prev)
+    if (field === 'password_confirmation') setShowConfirmPassword(prev => !prev)
+
+    setTimeout(() => {
+      input.focus()
+      input.setSelectionRange(cursorPos, cursorPos)
+    }, 0)
+  }
+
+  // Ngăn focus nhảy khi click icon
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault()
   }
 
   return (
@@ -72,9 +104,23 @@ function RegisterForm() {
               <TextField
                 fullWidth
                 label="Enter Password..."
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
+                inputRef={passwordRef}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword('password')}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
+                    </InputAdornment>
+                  )
+                }}
                 {...register('password', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -89,9 +135,23 @@ function RegisterForm() {
               <TextField
                 fullWidth
                 label="Enter Password Confirmation..."
-                type="password"
+                type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password_confirmation']}
+                inputRef={confirmRef}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Button
+                        onClick={handleClickShowPassword('password_confirmation')}
+                        onMouseDown={handleMouseDownPassword}
+                        sx={{ minWidth: 'auto', p: 0 }}
+                      >
+                        {showConfirmPassword ? <VisibilityOff fontSize="small" sx={iconStyle} /> : <Visibility fontSize="small" sx={iconStyle} />}
+                      </Button>
+                    </InputAdornment>
+                  )
+                }}
                 {...register('password_confirmation', {
                   validate: (value) => {
                     if (value === watch('password')) return true
