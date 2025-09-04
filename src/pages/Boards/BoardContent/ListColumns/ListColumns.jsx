@@ -1,3 +1,4 @@
+import { socketIoInstance } from '~/socketClient'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import Box from '@mui/material/Box'
@@ -25,14 +26,15 @@ function ListColumns({ columns }) {
 
   const [newColumnTitle, setNewColumnTitle] = useState('')
   const addNewColumn = async () => {
-    if (!newColumnTitle) {
+    const trimmedTitle = newColumnTitle.trim()
+    if (!trimmedTitle) {
       toast.error('Please enter your column title')
       return
     }
 
     // Tạo dữ liệu Column để gọi API
     const newColumnData = {
-      title: newColumnTitle
+      title: trimmedTitle
     }
 
     // Gọi API tạo mới column và làm mới dữ liệu state board
@@ -53,6 +55,12 @@ function ListColumns({ columns }) {
 
     // Cập nhật dữ liêu board vào redux store
     dispatch(updateCurrentActiveBoard(newBoard))
+
+    // Emit sự kiện socket để notify các client khác
+    socketIoInstance.emit('FE_COLUMN_CREATED', {
+      boardId: board._id,
+      createdColumn
+    })
 
     // Đóng trạng thái thêm column mới và clear input
     toggleNewColumnForm()
@@ -81,8 +89,8 @@ function ListColumns({ columns }) {
         {/* Box add another column CTA */}
         {!openNewColumnForm
           ? <Box onClick={toggleNewColumnForm} sx={{
-            minWidth: '250px',
-            maxWidth: '250px',
+            minWidth: { xs: '220px', sm: '250px' },
+            maxWidth: { xs: '220px', sm: '250px' },
             mx: 2,
             borderRadius: '6px',
             height: 'fit-content',

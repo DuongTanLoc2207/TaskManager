@@ -60,7 +60,6 @@ function NotFound() {
             },
             animation: 'spinAround 5s linear 0s infinite'
           }} />
-          {/* Đoạn này nếu chỉ cần hiện file SVG mà không cần custom css bằng SX prop thì không cần dùng SvgIcon mà cứ gọi trực tiếp luôn cũng được */}
           <PlanetSvg />
         </Box>
         <Link to="/" style={{ textDecoration: 'none' }}>

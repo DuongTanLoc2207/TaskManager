@@ -54,7 +54,6 @@ function SecurityTab() {
     event.preventDefault()
   }
 
-  // Ôn lại: https://www.npmjs.com/package/material-ui-confirm
   const confirmChangePassword = useConfirm()
   const submitChangePassword = (data) => {
     confirmChangePassword({

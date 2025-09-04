@@ -7,7 +7,6 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 
 function Auth() {
   const location = useLocation()
-  // console.log(location)
   const isLogin = location.pathname === '/login'
   const isRegister = location.pathname === '/register'
 

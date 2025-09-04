@@ -2,12 +2,6 @@ import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { toast } from 'react-toastify'
 
-/** Board */
-// export const fetchBoardDetailsAPI = async (boardId) => {
-//   const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`)
-//   return response.data
-// }
-
 export const updateBoardDetailsAPI = async (boardId, updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/${boardId}`, updateData)
   return response.data
@@ -82,5 +76,10 @@ export const updateCardDetailsAPI = async (cardId, updateData) => {
 export const inviteUserToBoardAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/invitations/board`, data)
   toast.success('User invited to board successfully!')
+  return response.data
+}
+
+export const deleteCommentAPI = async (cardId, commentId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cards/${cardId}/comments/${commentId}`)
   return response.data
 }

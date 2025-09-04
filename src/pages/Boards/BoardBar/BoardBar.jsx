@@ -2,9 +2,9 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
 import VpnLockOutlinedIcon from '@mui/icons-material/VpnLockOutlined'
-import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
-import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
-import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined'
+// import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
+// import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
+// import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined'
 import { Tooltip } from '@mui/material'
 import { capitalizeFirstLetter } from '~/utils/formatters'
 import BoardUserGroup from './BoardUserGroup'
@@ -12,15 +12,20 @@ import InviteBoardUser from './InviteBoardUser'
 import { useDispatch } from 'react-redux'
 import { updateBoardInStore } from '~/redux/activeBoard/activeBoardSlice'
 import { updateBoardDetailsAPI } from '~/apis'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { toast } from 'react-toastify'
 
 const MENU_STYLES = {
   color: 'white',
   bgcolor: 'transparent',
   border: 'none',
-  paddingX: '5px',
+  paddingX: { xs: '2px', sm: '5px' },
   borderRadius: '4px',
+  fontSize: { xs: '0.8rem', sm: '0.8rem', md: '1rem' },
   '.MuiSvgIcon-root': {
-    color: 'white'
+    color: 'white',
+    fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
   },
   '&:hover': {
     bgcolor: 'primary.50'
@@ -29,17 +34,16 @@ const MENU_STYLES = {
 
 function BoardBar({ board }) {
   const dispatch = useDispatch()
+  const currentUser = useSelector(selectCurrentUser)
 
   const handleUpdateBoardUsers = async (incomingMemberInfo) => {
     try {
-      console.log('Update board user:', incomingMemberInfo);
-      const updatedBoard = await updateBoardDetailsAPI(board._id, { incomingMemberInfo });
-      console.log('Updated board:', updatedBoard);
-      dispatch(updateBoardInStore(updatedBoard));
+      const updatedBoard = await updateBoardDetailsAPI(board._id, { incomingMemberInfo })
+      dispatch(updateBoardInStore(updatedBoard))
     } catch (error) {
-      console.error('Error updating board users:', error);
+      toast.error('Failed to update board users!')
     }
-  };
+  }
 
   return (
     <Box sx={{
@@ -54,7 +58,7 @@ function BoardBar({ board }) {
       '&::-webkit-scrollbar-track': { m: 2 },
       bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#34495e' : '#1976d2')
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5, md: 2 } }}>
         <Tooltip title={board?.description}>
           <Chip
             sx={MENU_STYLES}
@@ -69,7 +73,7 @@ function BoardBar({ board }) {
           label={capitalizeFirstLetter(board?.type)}
           clickable
         />
-        <Chip
+        {/* <Chip
           sx={MENU_STYLES}
           icon={<AddToDriveOutlinedIcon />}
           label="Add To Google Drive"
@@ -86,7 +90,7 @@ function BoardBar({ board }) {
           icon={<FilterListOutlinedIcon />}
           label="Filters"
           clickable
-        />
+        /> */}
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -96,7 +100,10 @@ function BoardBar({ board }) {
         {/* Xử lý hiển thị danh sách thành viên của board */}
         <BoardUserGroup
           boardUsers={board?.FE_allUsers}
+          ownerIds={board?.ownerIds || (board?.owners || []).map(o => o._id)}
+          currentUserId={currentUser?._id}
           onUpdateBoardUsers={handleUpdateBoardUsers}
+          boardId={board?._id}
         />
       </Box>
     </Box>

@@ -6,10 +6,10 @@ import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import ContentCut from '@mui/icons-material/ContentCut'
-import ContentCopy from '@mui/icons-material/ContentCopy'
-import ContentPaste from '@mui/icons-material/ContentPaste'
-import Cloud from '@mui/icons-material/Cloud'
+// import ContentCut from '@mui/icons-material/ContentCut'
+// import ContentCopy from '@mui/icons-material/ContentCopy'
+// import ContentPaste from '@mui/icons-material/ContentPaste'
+// import Cloud from '@mui/icons-material/Cloud'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Tooltip from '@mui/material/Tooltip'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -27,6 +27,7 @@ import { cloneDeep } from 'lodash'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
+import { socketIoInstance } from '~/socketClient'
 
 function Column({ column }) {
   const dispatch = useDispatch()
@@ -59,14 +60,16 @@ function Column({ column }) {
 
   const [newCardTitle, setNewCardTitle] = useState('')
   const addNewCard = async () => {
-    if (!newCardTitle) {
+    const trimmedTitle = newCardTitle.trim()
+
+    if (!trimmedTitle) {
       toast.error('Please enter your card title', { position: 'bottom-right' })
       return
     }
 
     // Tạo dữ liệu Card để gọi API
     const newCardData = {
-      title: newCardTitle,
+      title: trimmedTitle,
       columnId: column._id
     }
 
@@ -93,6 +96,11 @@ function Column({ column }) {
     }
     // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
+
+    socketIoInstance.emit('FE_CARD_CREATED', {
+      boardId: board._id,
+      createdCard
+    })
 
     // Đóng trạng thái thêm Card mới và clear input
     toggleNewCardForm()
@@ -126,6 +134,13 @@ function Column({ column }) {
         deleteColumnDetailsAPI(column._id).then(res => {
           toast.success(res?.deleteResult)
         })
+
+        // Emit sự kiện xóa column
+        socketIoInstance.emit('FE_COLUMN_DELETED', {
+          boardId: board._id,
+          columnId: column._id,
+          actor: socketIoInstance.id
+        })
       }).catch(() => {})
   }
 
@@ -137,6 +152,12 @@ function Column({ column }) {
       if (columnToUpdate) columnToUpdate.title = newTitle
 
       dispatch(updateCurrentActiveBoard(newBoard))
+
+      socketIoInstance.emit('FE_COLUMN_UPDATED', {
+        boardId: board._id,
+        columnId: column._id,
+        newTitle
+      })
     })
   }
 
@@ -146,8 +167,8 @@ function Column({ column }) {
       <Box
         {...listeners}
         sx={{
-          minWidth: '300px',
-          maxWidth: '300px',
+          minWidth: { xs: '260px', sm: '280px', md: '300px' },
+          maxWidth: { xs: '260px', sm: '280px', md: '300px' },
           bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#333643' : '#ebecf0'),
           ml: 2,
           borderRadius: '6px',
@@ -202,7 +223,7 @@ function Column({ column }) {
                 <ListItemIcon><PostAddIcon className='post-add-icon' fontSize="small" /></ListItemIcon>
                 <ListItemText>Add new card</ListItemText>
               </MenuItem>
-              <MenuItem>
+              {/* <MenuItem>
                 <ListItemIcon><ContentCut fontSize="small" /></ListItemIcon>
                 <ListItemText>Cut</ListItemText>
               </MenuItem>
@@ -213,7 +234,7 @@ function Column({ column }) {
               <MenuItem>
                 <ListItemIcon><ContentPaste fontSize="small" /></ListItemIcon>
                 <ListItemText>Paste</ListItemText>
-              </MenuItem>
+              </MenuItem> */}
               <Divider />
               <MenuItem
                 onClick={handleDeleteColumn}
@@ -227,10 +248,10 @@ function Column({ column }) {
                 <ListItemIcon><DeleteIcon className='delete-icon' fontSize="small" /></ListItemIcon>
                 <ListItemText>Delete this column</ListItemText>
               </MenuItem>
-              <MenuItem>
+              {/* <MenuItem>
                 <ListItemIcon><Cloud fontSize="small" /></ListItemIcon>
                 <ListItemText>Archive this column</ListItemText>
-              </MenuItem>
+              </MenuItem> */}
             </Menu>
           </Box>
         </Box>

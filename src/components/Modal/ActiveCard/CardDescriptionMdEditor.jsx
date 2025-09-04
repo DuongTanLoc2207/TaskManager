@@ -6,21 +6,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 
-// const markdownValueExample = `
-//   *\`Markdown Content Example:\`*
-
-//   **Hello world | TrungQuanDev - Một Lập Trình Viên | Trello MERN Stack Advanced**
-//   [![](https://avatars.githubusercontent.com/u/14128099?v=4&s=80)](https://avatars.githubusercontent.com/u/14128099?v=4)
-//   \`\`\`javascript
-//   import React from "react"
-//   import ReactDOM from "react-dom"
-//   import MDEditor from '@uiw/react-md-editor'
-//   \`\`\`
-// `
-/**
- * Vài ví dụ Markdown từ lib
- * https://codesandbox.io/embed/markdown-editor-for-react-izdd6?fontsize=14&hidenavigation=1&theme=dark
- */
 function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescription }) {
   // Lấy giá trị 'dark', 'light' hoặc 'system' mode từ MUI để support phần Markdown bên dưới: data-color-mode={mode}
   // https://www.npmjs.com/package/@uiw/react-md-editor#support-dark-modenight-mode
@@ -33,12 +18,11 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
 
   const updateCardDescription = () => {
     setMarkdownEditMode(false)
-    console.log('cardDescription: ', cardDescription)
     handleUpdateCardDescription(cardDescription)
   }
 
   return (
-    <Box sx={{ mt: -4 }}>
+    <Box sx={{ mt: { xs: -2, sm: -4 } }}>
       {markdownEditMode
         ? <Box sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box data-color-mode={mode}>
@@ -46,13 +30,13 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
               value={cardDescription}
               onChange={setCardDescription}
               previewOptions={{ rehypePlugins: [[rehypeSanitize]] }} // https://www.npmjs.com/package/@uiw/react-md-editor#security
-              height={400}
+              height={window.innerWidth < 600 ? 300 : 400}
               preview="edit" // Có 3 giá trị để set tùy nhu cầu ['edit', 'live', 'preview']
               // hideToolbar={true}
             />
           </Box>
           <Button
-            sx={{ alignSelf: 'flex-end' }}
+            sx={{ alignSelf: 'flex-end', fontSize: { xs: '12px', sm: '14px' } }}
             onClick={updateCardDescription}
             className="interceptor-loading"
             type="button"
@@ -64,7 +48,7 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
         </Box>
         : <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Button
-            sx={{ alignSelf: 'flex-end' }}
+            sx={{ alignSelf: 'flex-end', fontSize: { xs: '12px', sm: '14px' } }}
             onClick={() => setMarkdownEditMode(true)}
             type="button"
             variant="contained"

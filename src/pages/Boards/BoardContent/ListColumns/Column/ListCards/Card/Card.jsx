@@ -52,12 +52,20 @@ function Card({ card }) {
         '&:hover': { borderColor: (theme) => theme.palette.primary.main }
       }}
     >
-      {card?.cover && <CardMedia sx={{ height: 140 }} image={card?.cover}/>}
-      <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-        <Typography>{card?.title}</Typography>
+      {card?.cover && <CardMedia
+        sx={{
+          height: { xs: 100, sm: 120, md: 140 },
+          objectFit: 'cover'
+        }}
+        image={card?.cover}/>}
+      <CardContent sx={{ p: { xs: 1, sm: 1.5 }, '&:last-child': { p: { xs: 1, sm: 1.5 } } }}>
+        <Typography
+          noWrap
+          sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+        >{card?.title}</Typography>
       </CardContent>
       {shouldShowCardAction() &&
-        <CardActions sx={{ p: '0 4px 8px 4px' }}>
+        <CardActions sx={{ p: { xs: '0 2px 6px 2px', sm: '0 4px 8px 4px' } }}>
           {!!card?.memberIds?.length &&
             <Button size="small" startIcon={<GroupsIcon/>}>{card?.memberIds?.length}</Button>
           }

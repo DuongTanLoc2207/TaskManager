@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { normalizeBoard } from '~/utils/boardHelpers'
+import { generatePlaceholderCard } from '~/utils/formatters'
 
 // Khởi tạo giá trị State của Slice trong redux
 const initialState = {
@@ -59,6 +60,10 @@ export const activeBoardSlice = createSlice({
       if (column) {
         column.cards = column.cards.filter(card => card._id !== cardId)
         column.cardOrderIds = column.cardOrderIds.filter(id => id !== cardId)
+        if (!column.cards.length) {
+          column.cards = [generatePlaceholderCard(column)]
+          column.cardOrderIds = [column.cards[0]._id]
+        }
       }
     }
   },
