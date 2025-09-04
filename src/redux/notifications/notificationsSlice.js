@@ -4,7 +4,7 @@ import { API_ROOT } from '~/utils/constants'
 
 // Khởi tạo giá trị của một Slice trong redux
 const initialState = {
-  currentNotifications: null
+  currentNotifications: []
 }
 
 // Các hành động gọi api (bất đồng bộ) và cập nhật dữ liệu vào Redux, dùng Middleware createAsyncThunk đi kèm với extraReducers

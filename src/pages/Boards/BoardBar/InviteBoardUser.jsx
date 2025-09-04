@@ -33,7 +33,6 @@ function InviteBoardUser({ boardId }) {
       setValue('inviteeEmail', null)
       setAnchorPopoverElement(null)
 
-      // Mời một người dùng vào board xong thì cũng sẽ gửi/emit sự kiện socket lên server (tính năng real-time) > FE_USER_INVITED_TO_BOARD
       socketIoInstance.emit('FE_USER_INVITED_TO_BOARD', invitation)
     })
   }
@@ -46,9 +45,14 @@ function InviteBoardUser({ boardId }) {
           onClick={handleTogglePopover}
           variant="outlined"
           startIcon={<PersonAddIcon />}
-          sx={{ color: 'white', borderColor: 'white', '&:hover': { borderColor: 'white' } }}
+          sx={{
+            color: 'white',
+            borderColor: 'white',
+            minWidth: { xs: 40, sm: 64 },
+            '&:hover': { borderColor: 'white' }
+          }}
         >
-          Invite
+          <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Invite</Box>
         </Button>
       </Tooltip>
 
@@ -61,9 +65,9 @@ function InviteBoardUser({ boardId }) {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '320px' }}>
+        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '100%', maxWidth: '320px' }}>
           <Box sx={{ p: '15px 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: '16px' }}>Invite User To This Board!</Typography>
+            <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>Invite User To This Board!</Typography>
             <Box>
               <TextField
                 autoFocus

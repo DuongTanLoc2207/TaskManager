@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { debounce } from 'lodash'
 /**
- * Custom một cái hook để dùng cho việc debounce function, nhận vào 2 tham số là function và thời gian delay
- * Bài viết tham khảo tại đây:
+ * Custom một hook để dùng cho việc debounce function, nhận vào 2 tham số là function và thời gian delay
+ * Bài viết tham khảo:
  * https://trippingoncode.com/react-debounce-hook/
  * https://lodash.com/docs/4.17.15#debounce
  */

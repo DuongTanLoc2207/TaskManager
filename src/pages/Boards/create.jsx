@@ -46,7 +46,7 @@ const BOARD_TYPES = {
  * Note: Modal là một low-component mà MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover.
  */
 function SidebarCreateBoardModal({ afterCreateNewBoard }) {
-  const { control, register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { control, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
   const [isOpen, setIsOpen] = useState(false)
   const handleOpenModal = () => setIsOpen(true)
@@ -84,7 +84,7 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 600,
+          width: { xs: '90vw', sm: 600 },
           bgcolor: 'white',
           boxShadow: 24,
           borderRadius: '8px',
@@ -190,14 +190,14 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                   )}
                 />
 
-                <Box sx={{ alignSelf: 'flex-end' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button
-                    className="interceptor-loading"
                     type="submit"
                     variant="contained"
                     color="primary"
+                    disabled={isSubmitting}
                   >
-                    Create
+                    {isSubmitting ? 'Creating...' : 'Create'}
                   </Button>
                 </Box>
               </Box>

@@ -30,27 +30,24 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
    * Vì thế dựa vào mảng board.FE_allUsers và card.memberIds rồi tạo ra một mảng FE_CardMembers chứa đủ thông tin của User để hiển thị ra ngoài giao diện, bởi mặc định trong card chỉ lưu đám Id của User thôi (memberIds)
    */
   const FE_CardMembers = cardMemberIds.map(id => board.FE_allUsers.find(u => u._id === id))
-  console.log('FE_CardMembers: ', FE_CardMembers)
 
   const handleUpdateCardMembers = (user) => {
-    console.log('🚀 ~ handleUpdateCardMembers ~ user:', user)
     // Tạo một biến incomingMemberInfo để gửi cho BE, với 2 thông tin chính là userId và action là xóa khỏi card (REMOVE) hoặc thêm vào card (ADD)
     const incomingMemberInfo = {
       userId: user?._id,
       action: cardMemberIds.includes(user?._id) ? CARD_MEMBER_ACTIONS.REMOVE : CARD_MEMBER_ACTIONS.ADD
     }
-    console.log('🚀 ~ handleUpdateCardMembers ~ incomingMemberInfo:', incomingMemberInfo)
     onUpdateCardMembers(incomingMemberInfo)
   }
 
   // Lưu ý ở đây chúng ta không dùng Component AvatarGroup của MUI bởi nó không hỗ trợ tốt trong việc chúng ta cần custom & trigger xử lý phần tử tính toán cuối, đơn giản là cứ dùng Box và CSS - Style đám Avatar cho chuẩn kết hợp tính toán một chút thôi.
   return (
-    <Box sx={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+    <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       {/* Hiển thị các user là thành viên của card */}
       {FE_CardMembers.map((user, index) =>
         <Tooltip title={user.displayName} key={index}>
           <Avatar
-            sx={{ width: 34, height: 34, cursor: 'pointer' }}
+            sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 }, cursor: 'pointer' }}
             alt={user.displayName}
             src={user.avatar}
           />
@@ -63,13 +60,13 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
           aria-describedby={popoverId}
           onClick={handleTogglePopover}
           sx={{
-            width: 36,
-            height: 36,
+            width: { xs: 28, sm: 36 },
+            height: { xs: 28, sm: 36 },
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '14px',
+            fontSize: { xs: '12px', sm: '14px' },
             fontWeight: '600',
             borderRadius: '50%',
             color: (theme) => theme.palette.mode === 'dark' ? '#90caf9' : '#172b4d',
@@ -91,8 +88,9 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
         anchorEl={anchorPopoverElement}
         onClose={handleTogglePopover}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        disableEnforceFocus
       >
-        <Box sx={{ p: 2, maxWidth: '260px', display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+        <Box sx={{ p: 2, maxWidth: { xs: 200, sm: 260 }, display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
           {board.FE_allUsers.map((user, index) =>
             <Tooltip title={user.displayName} key={index}>
               {/* Cách làm Avatar kèm badge icon: https://mui.com/material-ui/react-avatar/#with-badge */}
@@ -108,7 +106,7 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
                 onClick={() => handleUpdateCardMembers(user)}
               >
                 <Avatar
-                  sx={{ width: 34, height: 34 }}
+                  sx={{ width: { xs: 28, sm: 34 }, height: { xs: 28, sm: 34 } }}
                   alt={user.displayName}
                   src={user.avatar}
                 />

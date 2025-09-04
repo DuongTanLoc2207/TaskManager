@@ -12,7 +12,7 @@ import { Link, useLocation } from 'react-router-dom'
 import AccountTab from './AccountTab'
 import SecurityTab from './SecurityTab'
 
-// Khai báo đống tabs ra biến const để dùng lại cho gọn
+// Khai báo tabs ra biến const để dùng lại cho gọn
 const TABS = {
   ACCOUNT: 'account',
   SECURITY: 'security'

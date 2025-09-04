@@ -48,7 +48,6 @@ function LoginForm() {
       dispatch(loginUserAPI({ email, password })),
       { pending: 'Logging in...' }
     ).then(res => {
-      // console.log('🚀 ~ submitLogIn ~ res:', res)
       if (!res.error) navigate('/')
     })
   }
