@@ -6,13 +6,10 @@ import {
   DndContext,
   useSensor,
   useSensors,
-  // MouseSensor,
-  // TouchSensor,
   DragOverlay,
   defaultDropAnimationSideEffects,
   closestCorners,
   pointerWithin,
-  // rectIntersection,
   getFirstCollision,
   closestCenter
 } from '@dnd-kit/core'

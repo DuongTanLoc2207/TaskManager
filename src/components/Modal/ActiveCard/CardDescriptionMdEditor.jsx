@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useColorScheme } from '@mui/material/styles'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
@@ -15,6 +15,13 @@ function CardDescriptionMdEditor({ cardDescriptionProp, handleUpdateCardDescript
   const [markdownEditMode, setMarkdownEditMode] = useState(false)
   // State xử lý giá trị markdown khi chỉnh sửa
   const [cardDescription, setCardDescription] = useState(cardDescriptionProp)
+
+  useEffect(() => {
+    // Chỉ sync nếu không đang ở edit mode (tránh overwrite khi user đang edit)
+    if (!markdownEditMode) {
+      setCardDescription(cardDescriptionProp)
+    }
+  }, [cardDescriptionProp, markdownEditMode])
 
   const updateCardDescription = () => {
     setMarkdownEditMode(false)

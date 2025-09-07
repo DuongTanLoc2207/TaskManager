@@ -1,4 +1,4 @@
-// Cấu hình Socket-io phía client tại đây và export ra biến socketIoInstance
+// Cấu hình Socket-io phía client
 // https://socket.io/how-to/use-with-react
 import { io } from 'socket.io-client'
 import { API_ROOT } from '~/utils/constants'

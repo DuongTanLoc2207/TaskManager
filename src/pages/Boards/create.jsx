@@ -42,7 +42,7 @@ const BOARD_TYPES = {
 }
 
 /**
- * Bản chất của cái component SidebarCreateBoardModal này sẽ trả về một cái SidebarItem để hiển thị ở màn Board List cho phù hợp giao diện bên đó, đồng thời nó cũng chứa thêm một cái Modal để xử lý riêng form create board.
+ * Bản chất của  component SidebarCreateBoardModal này sẽ trả về một cái SidebarItem để hiển thị ở màn Board List cho phù hợp giao diện bên đó, đồng thời nó cũng chứa thêm một cái Modal để xử lý riêng form create board.
  * Note: Modal là một low-component mà MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover.
  */
 function SidebarCreateBoardModal({ afterCreateNewBoard }) {
