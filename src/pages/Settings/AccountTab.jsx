@@ -17,6 +17,7 @@ import { selectCurrentUser, updateUserAPI } from '~/redux/user/userSlice'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
+import { socketIoInstance } from '~/socketClient'
 
 function AccountTab() {
   const dispatch = useDispatch()
@@ -45,6 +46,11 @@ function AccountTab() {
       // Kiểm tra không có lỗi (update thành công) thì mới thực hiện các hành động cần thiết
       if (!res.error) {
         toast.success('User updated successfully!')
+
+        socketIoInstance.emit('FE_USER_DISPLAYNAME_UPDATED', {
+          userId: currentUser._id,
+          newDisplayName: res.payload.displayName
+        })
       }
     })
   }
@@ -61,7 +67,6 @@ function AccountTab() {
     // Sử dụng FormData để xử lý dữ liệu liên quan tới file khi gọi API
     let reqData = new FormData()
     reqData.append('avatar', e.target?.files[0])
-    // Cách để log được dữ liệu thông qua FormData
     // console.log('reqData: ', reqData)
     // for (const value of reqData.values()) {
     //   console.log('reqData Value: ', value)
@@ -74,6 +79,11 @@ function AccountTab() {
     ).then(res => {
       if (!res.error) {
         toast.success('User updated successfully!')
+
+        socketIoInstance.emit('FE_USER_AVATAR_UPDATED', {
+          userId: currentUser._id,
+          newAvatarUrl: res.payload.avatar // Giả sử API trả về updated user với avatar
+        })
       }
 
       // Clear giá trị của file input, nếu không sẽ không thể chọn cùng một file liên tiếp được
@@ -90,17 +100,25 @@ function AccountTab() {
       justifyContent: 'center'
     }}>
       <Box sx={{
-        maxWidth: '1200px',
+        maxWidth: { xs: '100%', sm: '400px', md: '1200px' },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 3
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2
+        }}>
           <Box>
             <Avatar
-              sx={{ width: 84, height: 84, mb: 1 }}
+              sx={{
+                width: { xs: 64, sm: 84 },
+                height: { xs: 64, sm: 84 },
+                mb: 1
+              }}
               alt={currentUser?.displayName}
               src={currentUser?.avatar}
             />
@@ -116,13 +134,13 @@ function AccountTab() {
             </Tooltip>
           </Box>
           <Box>
-            <Typography variant="h6">{currentUser?.displayName}</Typography>
+            <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>{currentUser?.displayName}</Typography>
             <Typography sx={{ color: 'grey' }}>@{currentUser?.userName}</Typography>
           </Box>
         </Box>
 
         <form onSubmit={handleSubmit(submitChangeGeneralInformation)}>
-          <Box sx={{ width: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{ width: { xs: '320px', sm: '400px' }, display: 'flex', flexDirection: 'column', gap: { xs: 1.5, sm: 2 } }}>
             <Box>
               <TextField
                 disabled
@@ -132,6 +150,7 @@ function AccountTab() {
                 type="text"
                 variant="filled"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <MailIcon fontSize="small" />
@@ -150,6 +169,7 @@ function AccountTab() {
                 type="text"
                 variant="filled"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <AccountBoxIcon fontSize="small" />
@@ -166,6 +186,7 @@ function AccountTab() {
                 type="text"
                 variant="outlined"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <AssignmentIndIcon fontSize="small" />

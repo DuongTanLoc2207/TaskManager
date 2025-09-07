@@ -2,10 +2,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Avatar from '@mui/material/Avatar'
-import LockIcon from '@mui/icons-material/Lock'
+import HowToRegIcon from '@mui/icons-material/HowToReg'
 import Typography from '@mui/material/Typography'
 import { Card as MuiCard } from '@mui/material'
-import { ReactComponent as TrelloIcon } from '~/assets/mdi--trello.svg'
+import { ReactComponent as Logo } from '~/assets/logo.svg'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
@@ -70,15 +70,31 @@ function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(submitRegister)}>
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-        <MuiCard sx={{ minWidth: 380, maxWidth: 380, marginTop: '6em' }}>
+        <MuiCard sx={{
+          width: { xs: 320, sm: 360, md: 380 },
+          maxWidth: '100%',
+          marginTop: { xs: '4em', sm: '6em' }
+        }}>
           <Box sx={{
             margin: '1em',
             display: 'flex',
             justifyContent: 'center',
             gap: 1
           }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><TrelloIcon /></Avatar>
+            <Avatar sx={{
+              bgcolor: 'primary.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}>
+              <HowToRegIcon sx={{ fontSize: { xs: '18px', sm: '20px', md: '24px' } }} />
+            </Avatar>
+            <Avatar sx={{
+              bgcolor: 'primary.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}>
+              <Logo style={{ width: '80%', height: '80%' }} />
+            </Avatar>
           </Box>
           <Box sx={{ padding: '0 1em 1em 1em' }}>
             <Box sx={{ marginTop: '1em' }}>
@@ -90,6 +106,7 @@ function RegisterForm() {
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -107,6 +124,7 @@ function RegisterForm() {
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                 inputRef={passwordRef}
                 InputProps={{
                   endAdornment: (
@@ -138,6 +156,7 @@ function RegisterForm() {
                 type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password_confirmation']}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                 inputRef={confirmRef}
                 InputProps={{
                   endAdornment: (
@@ -170,12 +189,13 @@ function RegisterForm() {
               color="primary"
               size="large"
               fullWidth
+              sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
             >
               Register
             </Button>
           </CardActions>
           <Box sx={{ padding: '0 1em 1em 1em', textAlign: 'center' }}>
-            <Typography>Already have an account?</Typography>
+            <Typography >Already have an account?</Typography>
             <Link to="/login" style={{ textDecoration: 'none' }}>
               <Typography sx={{ color: 'primary.main', '&:hover': { color: '#ffbb39' } }}>Log in!</Typography>
             </Link>

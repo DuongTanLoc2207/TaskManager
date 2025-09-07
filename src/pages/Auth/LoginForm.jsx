@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar'
 import LockIcon from '@mui/icons-material/Lock'
 import Typography from '@mui/material/Typography'
 import { Card as MuiCard } from '@mui/material'
-import { ReactComponent as TrelloIcon } from '~/assets/mdi--trello.svg'
+import { ReactComponent as Logo } from '~/assets/logo.svg'
 import CardActions from '@mui/material/CardActions'
 import TextField from '@mui/material/TextField'
 import Zoom from '@mui/material/Zoom'
@@ -74,28 +74,41 @@ function LoginForm() {
   return (
     <form onSubmit={handleSubmit(submitLogIn)}>
       <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-        <MuiCard sx={{ minWidth: 380, maxWidth: 380, marginTop: '6em' }}>
+        <MuiCard sx={{
+          width: { xs: 300, sm: 380, md: 400 },
+          maxWidth: '100%',
+          marginTop: '6em',
+          mx: 'auto'
+        }}>
           <Box sx={{
             margin: '1em',
             display: 'flex',
             justifyContent: 'center',
             gap: 1
           }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><TrelloIcon /></Avatar>
+            <Avatar sx={{
+              bgcolor: 'primary.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}><LockIcon sx={{ fontSize: { xs: '20px', sm: '24px', md: '28px' } }} /></Avatar>
+            <Avatar sx={{
+              bgcolor: 'primary.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}><Logo style={{ width: '80%', height: '80%' }} /></Avatar>
           </Box>
           <Box sx={{ marginTop: '1em', display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 1em' }}>
             {verifiedEmail &&
-              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                 Your email&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{verifiedEmail}</Typography>
+                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>{verifiedEmail}</Typography>
                 &nbsp;has been verified.<br />Now you can login to enjoy our services! Have a good day!
               </Alert>
             }
             {registeredEmail &&
-              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' } }}>
+              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
                 An email has been sent to&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' } }}>{registeredEmail}</Typography>
+                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>{registeredEmail}</Typography>
                 <br />Please check and verify your account before logging in!
               </Alert>
             }
@@ -109,6 +122,7 @@ function LoginForm() {
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }} 
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -126,6 +140,7 @@ function LoginForm() {
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                 inputRef={passwordRef}
                 InputProps={{
                   endAdornment: (
@@ -158,6 +173,7 @@ function LoginForm() {
               variant="contained"
               color="primary"
               size="large"
+              sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
               fullWidth
             >
               Login

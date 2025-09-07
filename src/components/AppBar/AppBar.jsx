@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import AppsIcon from '@mui/icons-material/Apps'
-import { ReactComponent as TrelloIcon } from '~/assets/mdi--trello.svg'
+import { ReactComponent as Logo } from '~/assets/logo.svg'
 import SvgIcon from '@mui/icons-material/Apps'
 import Typography from '@mui/material/Typography'
 // import Workspaces from './Menus/Workspaces'
@@ -52,8 +52,13 @@ function AppBar() {
         </Link>
         <Link to={logoLink}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <SvgIcon component={TrelloIcon} inheritViewBox fontSize='small' sx={{ color: 'white' }}/>
-            <Typography variant='span' sx={{
+            <SvgIcon component={Logo} inheritViewBox
+              sx={{
+                width: { xs: '50px', sm: '58px' },
+                height: { xs: '50px', sm: '58px' }
+              }}
+            />
+            {/* <Typography variant='span' sx={{
               fontWeight: 'bold',
               color: 'white',
               fontSize: {
@@ -62,7 +67,7 @@ function AppBar() {
                 md: '1.2rem',
                 lg: '1.3rem'
               }
-            }} >Joji</Typography>
+            }} >Joji</Typography> */}
           </Box>
         </Link>
 

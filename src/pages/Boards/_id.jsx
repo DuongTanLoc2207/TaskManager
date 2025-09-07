@@ -4,7 +4,6 @@ import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from './BoardBar/BoardBar'
 import BoardContent from './BoardContent/BoardContent'
-// import { mockData } from '~/apis/mock-data'
 import {
   updateBoardDetailsAPI,
   updateColumnDetailsAPI,
@@ -376,6 +375,62 @@ function Board() {
       }
     })
 
+    socketIoInstance.on('BE_CARD_DESCRIPTION_UPDATED', (data) => {
+      if (data.boardId !== board._id) return
+
+      const newBoard = cloneDeep(board)
+      const column = newBoard.columns.find(col => col._id === data.columnId)
+      if (column) {
+        const card = column.cards.find(c => c._id === data.cardId)
+        // console.log('🚀 ~ Board ~ card:', card)
+        if (card) {
+          card.description = data.newDescription
+          // Cập nhật card trong board
+          dispatch(updateCardInBoard({ ...card, description: data.newDescription }))
+          // Nếu modal card đang mở, cập nhật activeCard
+          if (activeCardRef.current?._id === data.cardId) {
+            dispatch(updateCurrentActiveCard({ ...activeCardRef.current, description: data.newDescription }))
+          }
+        }
+      }
+      // Cập nhật toàn bộ board
+      dispatch(updateCurrentActiveBoard(newBoard))
+    })
+
+    socketIoInstance.on('BE_USER_AVATAR_UPDATED', (data) => {
+      const newBoard = cloneDeep(board)
+      const userToUpdate = newBoard.FE_allUsers?.find(user => user._id === data.userId)
+      if (userToUpdate) {
+        userToUpdate.avatar = data.newAvatarUrl
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+
+      // Cập nhật trong activeCard comments nếu đang mở
+      if (activeCardRef.current) {
+        const updatedComments = activeCardRef.current.comments?.map(comment =>
+          comment.userId === data.userId ? { ...comment, userAvatar: data.newAvatarUrl } : comment
+        )
+        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, comments: updatedComments }))
+      }
+    })
+
+    socketIoInstance.on('BE_USER_DISPLAYNAME_UPDATED', (data) => {
+      const newBoard = cloneDeep(board)
+      const userToUpdate = newBoard.FE_allUsers?.find(user => user._id === data.userId)
+      if (userToUpdate) {
+        userToUpdate.displayName = data.newDisplayName
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+
+      // Cập nhật trong activeCard comments nếu đang mở
+      if (activeCardRef.current) {
+        const updatedComments = activeCardRef.current.comments?.map(comment =>
+          comment.userId === data.userId ? { ...comment, userDisplayName: data.newDisplayName } : comment
+        )
+        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, comments: updatedComments }))
+      }
+    })
+
     return () => {
       socketIoInstance.off('BE_COLUMN_MOVED')
       socketIoInstance.off('BE_COLUMN_CREATED')
@@ -398,6 +453,9 @@ function Board() {
       socketIoInstance.off('BE_CARD_MEMBERS_UPDATED')
       socketIoInstance.off('BE_USER_REMOVED_FROM_BOARD')
       socketIoInstance.off('BE_USER_ADDED_TO_BOARD')
+      socketIoInstance.off('BE_CARD_DESCRIPTION_UPDATED')
+      socketIoInstance.off('BE_USER_AVATAR_UPDATED')
+      socketIoInstance.off('BE_USER_DISPLAYNAME_UPDATED')
     }
   }, [board, dispatch, navigate])
 

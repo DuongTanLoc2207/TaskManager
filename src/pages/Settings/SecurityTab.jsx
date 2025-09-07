@@ -87,10 +87,10 @@ function SecurityTab() {
       height: '100%',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     }}>
       <Box sx={{
-        maxWidth: '1200px',
+        maxWidth: { xs: '100%', md: '1200px' },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -98,10 +98,15 @@ function SecurityTab() {
         gap: 3
       }}>
         <Box>
-          <Typography variant="h5">Security Dashboard</Typography>
+          <Typography variant="h5" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem' } }}>Security Dashboard</Typography>
         </Box>
         <form onSubmit={handleSubmit(submitChangePassword)}>
-          <Box sx={{ width: '400px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box sx={{
+            width: { xs: '320px', md: '400px' },
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}>
             <Box>
               <TextField
                 fullWidth
@@ -109,6 +114,7 @@ function SecurityTab() {
                 type={showCurrentPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <PasswordIcon fontSize="small" />
@@ -145,6 +151,7 @@ function SecurityTab() {
                 type={showNewPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockIcon fontSize="small" />
@@ -181,6 +188,7 @@ function SecurityTab() {
                 type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 InputProps={{
+                  sx: { fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } },
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockResetIcon fontSize="small" />
@@ -215,7 +223,9 @@ function SecurityTab() {
                 type="submit"
                 variant="contained"
                 color="primary"
-                fullWidth>
+                fullWidth
+                sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' } }}
+              >
                 Change
               </Button>
             </Box>

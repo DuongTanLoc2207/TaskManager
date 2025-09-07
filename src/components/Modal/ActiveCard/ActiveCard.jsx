@@ -148,7 +148,17 @@ function ActiveCard() {
 
   const onUpdateCardDescription = (newDescription) => {
     // Gọi API
-    callApiUpdateCard({ description: newDescription })
+    callApiUpdateCard({ description: newDescription }).then((updatedCard) => {
+      // Emit socket event để realtime
+      socketIoInstance.emit('FE_CARD_DESCRIPTION_UPDATED', {
+        boardId: activeCard.boardId,
+        cardId: activeCard._id,
+        columnId: activeCard.columnId,
+        newDescription: updatedCard.description // Gửi description mới từ API response để đảm bảo nhất quán
+      })
+    }).catch(() => {
+      toast.error('Failed to update card description', { position: 'bottom-right' })
+    })
   }
 
   const onUploadCardCover = (event) => {

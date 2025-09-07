@@ -2,9 +2,6 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined'
 import VpnLockOutlinedIcon from '@mui/icons-material/VpnLockOutlined'
-// import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined'
-// import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined'
-// import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined'
 import { Tooltip } from '@mui/material'
 import { capitalizeFirstLetter } from '~/utils/formatters'
 import BoardUserGroup from './BoardUserGroup'
@@ -73,24 +70,6 @@ function BoardBar({ board }) {
           label={capitalizeFirstLetter(board?.type)}
           clickable
         />
-        {/* <Chip
-          sx={MENU_STYLES}
-          icon={<AddToDriveOutlinedIcon />}
-          label="Add To Google Drive"
-          clickable
-        />
-        <Chip
-          sx={MENU_STYLES}
-          icon={<BoltOutlinedIcon />}
-          label="Automation"
-          clickable
-        />
-        <Chip
-          sx={MENU_STYLES}
-          icon={<FilterListOutlinedIcon />}
-          label="Filters"
-          clickable
-        /> */}
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

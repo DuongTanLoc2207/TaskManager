@@ -28,15 +28,20 @@ function Settings() {
   // State lưu trữ giá trị tab nào đang active
   const [activeTab, setActiveTab] = useState(getDefaultTab())
 
-  // https://mui.com/material-ui/react-tabs
   const handleChangeTab = (event, selectedTab) => { setActiveTab(selectedTab) }
 
   return (
-    <Container disableGutters maxWidth={false}>
+    <Container disableGutters maxWidth={false} >
       <AppBar />
       <TabContext value={activeTab}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChangeTab}>
+          <TabList
+            onChange={handleChangeTab}
+            sx={{
+              minHeight: { xs: 48, sm: 56 },
+              '& .MuiTab-root': { fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }
+            }}
+          >
             <Tab
               label="Account"
               value={TABS.ACCOUNT}
