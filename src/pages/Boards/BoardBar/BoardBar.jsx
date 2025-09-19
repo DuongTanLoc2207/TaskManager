@@ -12,6 +12,8 @@ import { updateBoardDetailsAPI } from '~/apis'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
+import { toggleSubCardMode } from '~/redux/activeBoard/activeBoardSlice'
+import { Button } from '@mui/material'
 
 const MENU_STYLES = {
   color: 'white',
@@ -19,7 +21,7 @@ const MENU_STYLES = {
   border: 'none',
   paddingX: { xs: '2px', sm: '5px' },
   borderRadius: '4px',
-  fontSize: { xs: '0.8rem', sm: '0.8rem', md: '1rem' },
+  fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
   '.MuiSvgIcon-root': {
     color: 'white',
     fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
@@ -32,6 +34,7 @@ const MENU_STYLES = {
 function BoardBar({ board }) {
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
+  const isSubCardMode = useSelector(state => state.activeBoard.isSubCardMode)
 
   const handleUpdateBoardUsers = async (incomingMemberInfo) => {
     try {
@@ -73,6 +76,27 @@ function BoardBar({ board }) {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {/* Sub-card mode toggle chỉ trên mobile/tablet */}
+        <Button
+          variant={isSubCardMode ? 'contained' : 'outlined'}
+          onClick={() => dispatch(toggleSubCardMode())}
+          sx={{
+            textTransform: 'none',
+            fontSize: { xs: '0.7rem', sm: '0.8rem' },
+            color: 'white',
+            borderColor: 'white',
+            '&.MuiButton-contained': { backgroundColor: 'white', color: 'black' },
+            '&:hover': {
+              backgroundColor: isSubCardMode ? '#f0f0f0' : 'rgba(255,255,255,0.1)'
+            },
+            display: { xs: 'flex', sm: 'flex', md: 'none' },
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Sub-card: {isSubCardMode ? 'ON' : 'OFF'}
+        </Button>
+
+
         {/* Xử lý mời user vào board */}
         <InviteBoardUser boardId={board._id} />
 

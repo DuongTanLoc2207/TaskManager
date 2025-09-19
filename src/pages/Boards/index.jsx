@@ -31,7 +31,6 @@ import ListItemText from '@mui/material/ListItemText'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { socketIoInstance } from '~/socketClient'
 
-// Styles Sidebar item menu
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -66,10 +65,8 @@ function Boards() {
 
   const confirmDeleteBoard = useConfirm()
 
-  // dùng ref để lưu màu cho từng board, tránh gọi randomColor() mỗi lần render
   const colorsRef = useRef({})
 
-  // State cho dropdown per-board (1 menu anchor dùng cho tất cả cards)
   const [anchorEl, setAnchorEl] = useState(null)
   const [menuBoardId, setMenuBoardId] = useState(null)
   const handleMenuOpen = (event, boardId) => {
@@ -98,8 +95,8 @@ function Boards() {
           b._id === data.boardId
             ? {
               ...b,
-              title: data.newTitle ?? b.title, // Giữ nguyên title nếu không có newTitle
-              description: data.newDescription ?? b.description // Giữ nguyên description nếu không có newDescription
+              title: data.newTitle ?? b.title,
+              description: data.newDescription ?? b.description
             }
             : b
         )
@@ -109,7 +106,6 @@ function Boards() {
     socketIoInstance.on('BE_BOARD_DELETED', (data) => {
       setBoards(prev => {
         const newBoards = prev.filter(b => b._id !== data.boardId)
-        // Nếu danh sách boards rỗng và không phải trang 1, chuyển về trang trước hoặc trang 1
         if (newBoards.length === 0 && page > 1) {
           const newPage = page - 1
           navigate(`/boards${newPage === DEFAULT_PAGE ? '' : `?page=${newPage}`}`)
@@ -142,7 +138,6 @@ function Boards() {
     fetchBoardsAPI(location.search).then(updateStateData)
   }
 
-  // Hàm xóa board (soft delete với _destroy) + confirm
   const handleDeleteBoard = (boardId) => {
     confirmDeleteBoard({
       title: 'Delete board?',
@@ -155,7 +150,6 @@ function Boards() {
         toast.success('Board deleted successfully!')
         fetchBoardsAPI(location.search).then((res) => {
           updateStateData(res)
-          // Nếu danh sách boards rỗng sau khi xóa và không phải trang 1, chuyển về trang trước hoặc trang 1
           if (res.boards.length === 0 && page > 1) {
             const newPage = page - 1
             navigate(`/boards${newPage === DEFAULT_PAGE ? '' : `?page=${newPage}`}`)
@@ -174,31 +168,27 @@ function Boards() {
       const trimmedData = {}
       if (data.title) trimmedData.title = data.title.trim()
       if (data.description) trimmedData.description = data.description.trim()
-
-      // Chỉ gửi API nếu có dữ liệu thay đổi
       if (Object.keys(trimmedData).length === 0) return
 
       const updatedBoard = await updateBoardDetailsAPI(boardId, trimmedData)
 
-      // Cập nhật state local, chỉ merge các trường thực sự được trả về từ API
       setBoards(prev =>
         prev.map(b =>
           b._id === boardId
             ? {
               ...b,
-              title: updatedBoard.title ?? b.title, // Giữ nguyên title nếu API không trả về
-              description: updatedBoard.description ?? b.description // Giữ nguyên description nếu API không trả về
+              title: updatedBoard.title ?? b.title,
+              description: updatedBoard.description ?? b.description
             }
             : b
         )
       )
 
-      // Emit sự kiện socket chỉ với các trường thay đổi
       if (trimmedData.title || trimmedData.description) {
         socketIoInstance.emit('FE_BOARD_UPDATED', {
           boardId,
-          newTitle: trimmedData.title ?? undefined, // Chỉ gửi title nếu có thay đổi
-          newDescription: trimmedData.description ?? undefined, // Chỉ gửi description nếu có thay đổi
+          newTitle: trimmedData.title ?? undefined,
+          newDescription: trimmedData.description ?? undefined,
           actor: socketIoInstance.id
         })
       }
@@ -251,13 +241,11 @@ function Boards() {
             {boards?.length > 0 &&
               <Grid container spacing={2} justifyContent={{ xs: 'center', sm: 'flex-start' }}>
                 {boards.map(b => {
-                  // Lấy màu cố định cho board này, nếu chưa có thì tạo và lưu vào ref
                   const headerColor = colorsRef.current[b._id] ?? (colorsRef.current[b._id] = randomColor())
 
                   return (
                     <Grid xs="auto" sm={6} md={4} key={b._id} sx={{ display: 'flex', justifyContent: 'center' }}>
                       <Card sx={{ width: { xs: '90%', sm: 250 }, maxWidth: 250 }}>
-                        {/* màu header giờ ổn định vì dùng colorsRef */}
                         <Box sx={{ height: '50px', backgroundColor: headerColor }}></Box>
 
                         <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
@@ -308,7 +296,7 @@ function Boards() {
                             </Box>
                           </Box>
 
-                          {/* Menu (Delete nằm trong đây) */}
+                          {/* Delete */}
                           <Menu
                             id={`board-menu-${b._id}`}
                             anchorEl={anchorEl}

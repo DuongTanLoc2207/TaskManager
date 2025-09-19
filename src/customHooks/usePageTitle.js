@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-// Map route -> title
 const TITLES = {
   '/boards': 'Boards - Joji',
   '/login': 'Login - Joji',

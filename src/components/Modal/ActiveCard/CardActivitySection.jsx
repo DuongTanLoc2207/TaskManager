@@ -15,7 +15,8 @@ import { useConfirm } from 'material-ui-confirm'
 import { useDispatch } from 'react-redux'
 import { updateCurrentActiveCard, selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
-function CardActivitySection({ cardComments=[], onAddCardComment, cardId, boardId }) {
+function CardActivitySection({ cardComments=[], onAddCardComment, cardId, boardId, cardUtils }) {
+  const { findCardInBoard, updateSubCardInTree } = cardUtils
   const currentUser = useSelector(selectCurrentUser)
   const board = useSelector(selectCurrentActiveBoard)
   const currentCard = useSelector(selectCurrentActiveCard)
@@ -23,44 +24,56 @@ function CardActivitySection({ cardComments=[], onAddCardComment, cardId, boardI
   const dispatch = useDispatch()
 
   const handleAddCardComment = (event) => {
-    // Bắt hành động người dùng nhấn phím Enter && không phải hành động Shift + Enter
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault() // Thêm dòng này để khi Enter không bị nhảy dòng
-      if (!event.target?.value) return // Nếu không có giá trị gì thì return không làm gì cả
+      event.preventDefault()
+      if (!event.target?.value) return
 
-      // Tạo một biến commend data để gửi api
       const commentToAdd = {
         userId: currentUser?._id,
         userAvatar: currentUser?.avatar,
         userDisplayName: currentUser?.displayName,
         content: event.target.value.trim()
       }
-      // Gọi lên Props ở component cha
       onAddCardComment(commentToAdd).then((createdComment) => {
         event.target.value = ''
 
-        // Update Redux local ngay lập tức
         const updatedCard = {
           ...currentCard,
           comments: [createdComment, ...(currentCard.comments || [])]
         }
         dispatch(updateCurrentActiveCard(updatedCard))
-        dispatch(updateCurrentActiveBoard({
-          ...board,
-          columns: board.columns.map(col => ({
-            ...col,
-            cards: col.cards.map(card =>
-              card._id === cardId
-                ? { ...card, comments: updatedCard.comments }
-                : card
-            )
+        if (currentCard.parentCardId) {
+          const parentCard = findCardInBoard(board, currentCard.parentCardId)
+          if (parentCard) {
+            const updatedSubCards = updateSubCardInTree(parentCard.subCards, updatedCard)
+            const updatedParentCard = { ...parentCard, subCards: updatedSubCards }
+            dispatch(updateCurrentActiveBoard({
+              ...board,
+              columns: board.columns.map(col => ({
+                ...col,
+                cards: col.cards.map(card =>
+                  card._id === parentCard._id ? updatedParentCard : card
+                )
+              }))
+            }))
+          }
+        } else {
+          dispatch(updateCurrentActiveBoard({
+            ...board,
+            columns: board.columns.map(col => ({
+              ...col,
+              cards: col.cards.map(card =>
+                card._id === cardId ? updatedCard : card
+              )
+            }))
           }))
-        }))
+        }
 
         socketIoInstance.emit('FE_COMMENT_ADDED', {
           boardId,
           cardId,
-          comment: createdComment, // BE sẽ phát lại cho các client khác
+          comment: createdComment,
+          parentCardId: currentCard.parentCardId || null,
           actor: socketIoInstance.id
         })
       })
@@ -81,30 +94,44 @@ function CardActivitySection({ cardComments=[], onAddCardComment, cardId, boardI
 
           const updatedComments = cardComments.filter(c => c._id !== commentId)
 
-          // 🔥 Update card mới (clone từ currentActiveCard)
           const updatedCard = {
             ...currentCard,
             comments: updatedComments
           }
 
-          // Update vào Redux
           dispatch(updateCurrentActiveCard(updatedCard))
-          dispatch(updateCurrentActiveBoard({
-            ...board,
-            columns: board.columns.map(col => ({
-              ...col,
-              cards: col.cards.map(card =>
-                card._id === cardId
-                  ? { ...card, comments: updatedComments }
-                  : card
-              )
+          if (currentCard.parentCardId) {
+            const parentCard = findCardInBoard(board, currentCard.parentCardId)
+            if (parentCard) {
+              const updatedSubCards = updateSubCardInTree(parentCard.subCards, updatedCard)
+              const updatedParentCard = { ...parentCard, subCards: updatedSubCards }
+              dispatch(updateCurrentActiveBoard({
+                ...board,
+                columns: board.columns.map(col => ({
+                  ...col,
+                  cards: col.cards.map(card =>
+                    card._id === parentCard._id ? updatedParentCard : card
+                  )
+                }))
+              }))
+            }
+          } else {
+            dispatch(updateCurrentActiveBoard({
+              ...board,
+              columns: board.columns.map(col => ({
+                ...col,
+                cards: col.cards.map(card =>
+                  card._id === cardId ? updatedCard : card
+                )
+              }))
             }))
-          }))
+          }
 
           socketIoInstance.emit('FE_COMMENT_DELETED', {
             boardId,
             cardId,
             commentId,
+            parentCardId: currentCard.parentCardId || null,
             actor: socketIoInstance.id
           })
         } catch (error) {
@@ -116,7 +143,6 @@ function CardActivitySection({ cardComments=[], onAddCardComment, cardId, boardI
 
   return (
     <Box sx={{ mt: 2 }}>
-      {/* Xử lý thêm comment vào Card */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Avatar
           sx={{

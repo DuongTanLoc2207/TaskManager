@@ -35,10 +35,8 @@ function Column({ column }) {
   })
   const dndKitColumnStyles = {
     touchAction: 'none',
-    // CSS.Transform bị lỗi stretch
     transform: CSS.Translate.toString(transform),
     transition,
-    // fix lỗi column ngắn kéo qua column dài bằng cách max height và đưa {...listeners} vào Box chứ không pjải ở div
     height: '100%',
     opacity: isDragging ? 0.5 : undefined
   }
@@ -48,7 +46,6 @@ function Column({ column }) {
   const handleClick = (event) => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
 
-  // Card đã đc sắp xếp ở component cha
   const orderedCards = column.cards
 
   const [openNewCardForm, setOpenNewCardForm] = useState(false)
@@ -63,34 +60,27 @@ function Column({ column }) {
       return
     }
 
-    // Tạo dữ liệu Card để gọi API
     const newCardData = {
       title: trimmedTitle,
       columnId: column._id
     }
 
-    // Gọi API tạo mới card và làm mới dữ liệu state board
     const createdCard = await createNewCardAPI({
       ...newCardData,
       boardId: board._id
     })
 
-    // Cập nhật state board
-    // const newBoard = { ...board }
     const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
     if (columnToUpdate) {
       if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
-        // Trường hợp column rỗng tức là đang chứa placeholder card
         columnToUpdate.cards = [createdCard]
         columnToUpdate.cardOrderIds = [createdCard._id]
       } else {
-        // Column đã có dữ liệu
         columnToUpdate.cards.push(createdCard)
         columnToUpdate.cardOrderIds.push(createdCard._id)
       }
     }
-    // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
 
     socketIoInstance.emit('FE_CARD_CREATED', {
@@ -98,12 +88,10 @@ function Column({ column }) {
       createdCard
     })
 
-    // Đóng trạng thái thêm Card mới và clear input
     toggleNewCardForm()
     setNewCardTitle('')
   }
 
-  // Xử lý xóa một column và cards bên trong nó
   const confirmDeleteColumn = useConfirm()
   const handleDeleteColumn = () => {
     confirmDeleteColumn({
@@ -111,27 +99,17 @@ function Column({ column }) {
       description: 'This action will permanently delete your Column and its Cards! Are you sure?',
       confirmationText: 'Confirm',
       cancellationText: 'Cancel'
-      // buttonOrder: ['confirm', 'cancel']
-      // allowClose: false,
-      // dialogProps: { maxWidth: 'xs' },
-      // cancellationButtonProps: { color: 'inherit' },
-      // confirmationButtonProps: { color: 'secondary', variant: 'outlined' },
-
     })
       .then(() => {
-        // Update dữ dữ liệu state board
         const newBoard = { ...board }
         newBoard.columns = newBoard.columns.filter(c => c._id !== column._id)
         newBoard.columnOrderIds = newBoard.columnOrderIds.filter(_id => _id !== column._id)
-        // setBoard(newBoard)
         dispatch(updateCurrentActiveBoard(newBoard))
 
-        // Gọi API xử lý phía BE
         deleteColumnDetailsAPI(column._id).then(res => {
           toast.success(res?.deleteResult)
         })
 
-        // Emit sự kiện xóa column
         socketIoInstance.emit('FE_COLUMN_DELETED', {
           boardId: board._id,
           columnId: column._id,
@@ -141,7 +119,6 @@ function Column({ column }) {
   }
 
   const onUpdateColumnTitle = (newTitle) => {
-    // Gọi API update column và xử lý dữ liệu board trong reudux
     updateColumnDetailsAPI(column._id, { title: newTitle }).then(() => {
       const newBoard = cloneDeep(board)
       const columnToUpdate = newBoard.columns.find(c => c._id === column._id)
@@ -158,7 +135,6 @@ function Column({ column }) {
   }
 
   return (
-    // fix flickering khi kéo thả column do chiều cao bằng cách bọc bằng div
     <div ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
       <Box
         {...listeners}

@@ -55,18 +55,17 @@ function LoginForm() {
   const handleClickShowPassword = () => {
     if (passwordRef.current) {
       const input = passwordRef.current
-      const cursorPos = input.selectionStart // lưu vị trí con trỏ
+      const cursorPos = input.selectionStart
       setShowPassword(prev => !prev)
       setTimeout(() => {
         input.focus()
-        input.setSelectionRange(cursorPos, cursorPos) // restore caret
+        input.setSelectionRange(cursorPos, cursorPos)
       }, 0)
     } else {
       setShowPassword(prev => !prev)
     }
   }
 
-  // Ngăn focus nhảy khi click icon
   const handleMouseDownPassword = (event) => {
     event.preventDefault()
   }
@@ -122,7 +121,7 @@ function LoginForm() {
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
-                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }} 
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -140,7 +139,7 @@ function LoginForm() {
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
-                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
                 inputRef={passwordRef}
                 InputProps={{
                   endAdornment: (

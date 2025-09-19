@@ -11,10 +11,6 @@ import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
 
 function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
-  /**
-   * Xử lý Popover để ẩn hoặc hiện toàn bộ user trên một cái popup, tương tự docs để tham khảo ở đây:
-   * https://mui.com/material-ui/react-popover/
-   */
   const [anchorPopoverElement, setAnchorPopoverElement] = useState(null)
   const isOpenPopover = Boolean(anchorPopoverElement)
   const popoverId = isOpenPopover ? 'card-all-users-popover' : undefined
@@ -24,15 +20,9 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
   }
 
   const board = useSelector(selectCurrentActiveBoard)
-
-  /**
-   * Thành viên trong card sẽ phải là tập con của thành viên trong board
-   * Vì thế dựa vào mảng board.FE_allUsers và card.memberIds rồi tạo ra một mảng FE_CardMembers chứa đủ thông tin của User để hiển thị ra ngoài giao diện, bởi mặc định trong card chỉ lưu đám Id của User thôi (memberIds)
-   */
   const FE_CardMembers = cardMemberIds.map(id => board.FE_allUsers.find(u => u._id === id))
 
   const handleUpdateCardMembers = (user) => {
-    // Tạo một biến incomingMemberInfo để gửi cho BE, với 2 thông tin chính là userId và action là xóa khỏi card (REMOVE) hoặc thêm vào card (ADD)
     const incomingMemberInfo = {
       userId: user?._id,
       action: cardMemberIds.includes(user?._id) ? CARD_MEMBER_ACTIONS.REMOVE : CARD_MEMBER_ACTIONS.ADD
@@ -40,7 +30,6 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
     onUpdateCardMembers(incomingMemberInfo)
   }
 
-  // Lưu ý ở đây chúng ta không dùng Component AvatarGroup của MUI bởi nó không hỗ trợ tốt trong việc chúng ta cần custom & trigger xử lý phần tử tính toán cuối, đơn giản là cứ dùng Box và CSS - Style đám Avatar cho chuẩn kết hợp tính toán một chút thôi.
   return (
     <Box sx={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
       {/* Hiển thị các user là thành viên của card */}
@@ -54,7 +43,7 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
         </Tooltip>
       )}
 
-      {/* Nút này để mở popover thêm member */}
+      {/* Button mở popover thêm member */}
       <Tooltip title="Add new member">
         <Box
           aria-describedby={popoverId}
@@ -81,7 +70,7 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
         </Box>
       </Tooltip>
 
-      {/* Khi Click vào + ở trên thì sẽ mở popover hiện toàn bộ users trong board để người dùng Click chọn thêm vào card  */}
+      {/* Popover hiện toàn bộ users trong board để người dùng Click chọn thêm vào card  */}
       <Popover
         id={popoverId}
         open={isOpenPopover}
@@ -93,7 +82,6 @@ function CardUserGroup({ cardMemberIds = [], onUpdateCardMembers }) {
         <Box sx={{ p: 2, maxWidth: { xs: 200, sm: 260 }, display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
           {board.FE_allUsers.map((user, index) =>
             <Tooltip title={user.displayName} key={index}>
-              {/* Cách làm Avatar kèm badge icon: https://mui.com/material-ui/react-avatar/#with-badge */}
               <Badge
                 sx={{ cursor: 'pointer' }}
                 overlap="rectangular"

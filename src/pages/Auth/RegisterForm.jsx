@@ -62,7 +62,6 @@ function RegisterForm() {
     }, 0)
   }
 
-  // Ngăn focus nhảy khi click icon
   const handleMouseDownPassword = (event) => {
     event.preventDefault()
   }
@@ -106,7 +105,7 @@ function RegisterForm() {
                 type="text"
                 variant="outlined"
                 error={!!errors['email']}
-                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
                 {...register('email', {
                   required: FIELD_REQUIRED_MESSAGE,
                   pattern: {
@@ -124,7 +123,7 @@ function RegisterForm() {
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password']}
-                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
                 inputRef={passwordRef}
                 InputProps={{
                   endAdornment: (

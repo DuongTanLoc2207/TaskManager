@@ -63,16 +63,7 @@ const theme = extendTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          // color: theme.palette.primary.main,
           fontSize: '0.875rem',
-          // '.MuiOutlinedInput-notchedOutline': {
-          //   borderColor: theme.palette.primary.light
-          // },
-          // '&:hover': {
-          //   '.MuiOutlinedInput-notchedOutline': {
-          //     borderColor: theme.palette.primary.main
-          //   }
-          // },
           '& fieldset': { borderWidth: '0.5px !important' },
           '&:hover fieldset': { borderWidth: '1px !important' },
           '&.Mui-focused fieldset': { borderWidth: '1px !important' }

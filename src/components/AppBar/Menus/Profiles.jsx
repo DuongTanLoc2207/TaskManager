@@ -7,8 +7,6 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import Avatar from '@mui/material/Avatar'
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
-// import PersonAdd from '@mui/icons-material/PersonAdd'
-// import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser, logoutUserAPI } from '~/redux/user/userSlice'
@@ -35,7 +33,6 @@ function Profiles() {
       confirmationText: 'Confirm',
       cancellationText: 'Cancel'
     }).then(() => {
-      // Gọi API đăng xuất người dùng
       dispatch(logoutUserAPI())
     }).catch(() => {})
   }
@@ -80,18 +77,6 @@ function Profiles() {
           </MenuItem>
         </Link>
         <Divider />
-        {/* <MenuItem>
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Add another account
-        </MenuItem> */}
-        {/* <MenuItem>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem> */}
         <MenuItem onClick={handleLogout} sx={{
           '&:hover': {
             color: 'warning.dark',

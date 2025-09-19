@@ -3,16 +3,8 @@ import ModeSelect from '~/components/ModeSelect/ModeSelect'
 import AppsIcon from '@mui/icons-material/Apps'
 import { ReactComponent as Logo } from '~/assets/logo.svg'
 import SvgIcon from '@mui/icons-material/Apps'
-import Typography from '@mui/material/Typography'
-// import Workspaces from './Menus/Workspaces'
-// import Recent from './Menus/Recent'
-// import Started from './Menus/Started'
-// import Templates from './Menus/Templates'
-// import Button from '@mui/material/Button'
 import Tooltip from '@mui/material/Tooltip'
-// import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import Profiles from './Menus/Profiles'
-// import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined'
 import { Link } from 'react-router-dom'
 import Notifications from './Notifications/Notifications'
 import AutoCompleteSearchBoard from './SearchBoards/AutoCompleteSearchBoard'
@@ -25,7 +17,6 @@ import MenuIcon from '@mui/icons-material/Menu'
 function AppBar() {
   const currentActiveBoard = useSelector(selectCurrentActiveBoard)
 
-  // Xác định đường dẫn cho logo: nếu có board hiện tại, dùng boardId, nếu không, về /boards
   const logoLink = currentActiveBoard?._id ? `/boards/${currentActiveBoard._id}` : '/boards'
 
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down('sm'))
@@ -58,31 +49,8 @@ function AppBar() {
                 height: { xs: '50px', sm: '58px' }
               }}
             />
-            {/* <Typography variant='span' sx={{
-              fontWeight: 'bold',
-              color: 'white',
-              fontSize: {
-                xs: '1rem',
-                sm: '1.1rem',
-                md: '1.2rem',
-                lg: '1.3rem'
-              }
-            }} >Joji</Typography> */}
           </Box>
         </Link>
-
-        {/* <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 1 }}>
-          <Workspaces/>
-          <Recent/>
-          <Started/>
-          <Templates/>
-          <Button
-            startIcon={<AddBoxOutlinedIcon/>}
-            sx={{ color: 'white' }}
-          >
-            Create
-          </Button>
-        </Box> */}
       </Box>
 
       {isMobile ? (
@@ -124,11 +92,6 @@ function AppBar() {
 
           {/* Xử lý hiển thị các thông báo */}
           <Notifications />
-
-          {/* <Tooltip title="Help">
-          <HelpOutlineIcon sx={{ cursor: 'pointer', color: 'white' }}/>
-          </Tooltip> */}
-
           <Profiles/>
         </Box>
       )}

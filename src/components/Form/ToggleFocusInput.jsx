@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 
-// Trick xử lý css ktrong việc làm UI UX khi cần ẩn hiện một cái input là thay vì phải tạo biến State để chuyển đổi qua lại giữa thẻ Input và Text thông thường thì sẽ CSS lại cho cái thẻ Input trông như text bình thường, chỉ khi click và focus vào nó thì style lại trở về như cái input ban đầu.
-// Controlled Component Input trong MUI: https://mui.com/material-ui/react-text-field/#uncontrolled-vs-controlled
 function ToggleFocusInput({ id, value, onChangedValue, inputFontSize = '16px', inputFontWeight, ...props }) {
   const [inputValue, setInputValue] = useState(value)
 
@@ -11,19 +9,15 @@ function ToggleFocusInput({ id, value, onChangedValue, inputFontSize = '16px', i
     setInputValue(value || '')
   }, [value])
 
-  // Blur là khi chúng ta không còn Focus vào phần tử nữa thì sẽ trigger hành động ở đây.
   const triggerBlur = () => {
     const trimmedValue = inputValue.trim()
-    // Support Trim dữ liệu State inputValue cho đẹp luôn sau khi blur ra ngoài
     setInputValue(trimmedValue)
 
-    // Nếu giá trị không có gì thay đổi hoặc Nếu user xóa hết nội dung thì set lại giá trị gốc ban đầu theo value từ props và return luôn không làm gì thêm
     if (!inputValue || inputValue.trim() === value) {
       setInputValue(value)
       return
     }
 
-    // Khi giá trị có thay đổi ok thì gọi lên func ở Props cha để xử lý
     onChangedValue(trimmedValue)
   }
 
