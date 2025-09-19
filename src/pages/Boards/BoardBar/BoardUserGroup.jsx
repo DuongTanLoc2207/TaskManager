@@ -19,7 +19,6 @@ function BoardUserGroup({ boardUsers = [], limit = 6, ownerIds = [], currentUser
     else setAnchorPopoverElement(null)
   }
 
-  // State cho popup xóa user
   const [anchorUserPopover, setAnchorUserPopover] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
 
@@ -31,9 +30,9 @@ function BoardUserGroup({ boardUsers = [], limit = 6, ownerIds = [], currentUser
 
     const canRemove = (() => {
       if (isSelf) {
-        return !isSelectedOwner // tự rời nếu không phải owner
+        return !isSelectedOwner
       } else {
-        return isCurrentUserOwner // chỉ owner mới xóa người khác
+        return isCurrentUserOwner
       }
     })()
 
@@ -63,8 +62,6 @@ function BoardUserGroup({ boardUsers = [], limit = 6, ownerIds = [], currentUser
     }
     try {
       onUpdateBoardUsers(incomingMemberInfo)
-
-      // Phát sự kiện socket
       socketIoInstance.emit('FE_USER_REMOVED_FROM_BOARD', {
         boardId: boardId,
         userId: selectedUser._id,
@@ -141,7 +138,7 @@ function BoardUserGroup({ boardUsers = [], limit = 6, ownerIds = [], currentUser
         </Tooltip>
       }
 
-      {/* Popover cũ hiển thị toàn bộ users */}
+      {/* Popover hiển thị toàn bộ users */}
       <Popover
         id={popoverId}
         open={isOpenPopover}

@@ -9,7 +9,6 @@ import LockIcon from '@mui/icons-material/Lock'
 import LogoutIcon from '@mui/icons-material/Logout'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-
 import { FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useForm } from 'react-hook-form'
@@ -49,7 +48,6 @@ function SecurityTab() {
     }
   }
 
-  // Ngăn focus nhảy khi click icon
   const handleMouseDownPassword = (event) => {
     event.preventDefault()
   }
@@ -57,7 +55,6 @@ function SecurityTab() {
   const confirmChangePassword = useConfirm()
   const submitChangePassword = (data) => {
     confirmChangePassword({
-      // Title, Description, Content...vv của gói material-ui-confirm đều có type là ReactNode nên có thể thoải sử dụng MUI components, rất tiện lợi khi cần custom styles
       title: <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <LogoutIcon sx={{ color: 'warning.dark' }} /> Change Password
       </Box>,
@@ -72,7 +69,6 @@ function SecurityTab() {
         dispatch(updateUserAPI({ current_password, new_password })),
         { pending: 'Updating...' }
       ).then(res => {
-        // Đoạn này phải kiểm tra không có lỗi (update thành công) thì mới thực hiện các hành động cần thiết
         if (!res.error) {
           toast.success('Successfully changed your password, please login again!')
           dispatch(logoutUserAPI(false))
@@ -87,7 +83,7 @@ function SecurityTab() {
       height: '100%',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'center'
     }}>
       <Box sx={{
         maxWidth: { xs: '100%', md: '1200px' },

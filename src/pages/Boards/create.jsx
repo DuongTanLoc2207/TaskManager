@@ -35,16 +35,11 @@ const SidebarItem = styled(Box)(({ theme }) => ({
   }
 }))
 
-// BOARD_TYPES tương tự bên model phía Back-end
 const BOARD_TYPES = {
   PUBLIC: 'public',
   PRIVATE: 'private'
 }
 
-/**
- * Bản chất của  component SidebarCreateBoardModal này sẽ trả về một cái SidebarItem để hiển thị ở màn Board List cho phù hợp giao diện bên đó, đồng thời nó cũng chứa thêm một cái Modal để xử lý riêng form create board.
- * Note: Modal là một low-component mà MUI sử dụng bên trong những thứ như Dialog, Drawer, Menu, Popover.
- */
 function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const { control, register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm()
 
@@ -52,16 +47,12 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
   const handleOpenModal = () => setIsOpen(true)
   const handleCloseModal = () => {
     setIsOpen(false)
-    // Reset lại toàn bộ form khi đóng Modal
     reset()
   }
 
   const submitCreateNewBoard = (data) => {
-    // const { title, description, type } = data
     createNewBoardAPI(data).then(() => {
-      // Đóng Modal
       handleCloseModal()
-      // Thông báo đến component cha để xử lý
       afterCreateNewBoard()
     })
   }
@@ -75,7 +66,6 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
 
       <Modal
         open={isOpen}
-        // onClose={handleCloseModal} // chỉ sử dụng onClose trong trường hợp muốn đóng Modal bằng nút ESC hoặc click ra ngoài Modal
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -158,11 +148,6 @@ function SidebarCreateBoardModal({ afterCreateNewBoard }) {
                   <FieldErrorAlert errors={errors} fieldName={'description'} />
                 </Box>
 
-                {/*
-                  * Đối với RadioGroup của MUI thì không thể dùng register tương tự TextField được mà phải sử dụng <Controller /> và props "control" của react-hook-form
-                  * https://stackoverflow.com/a/73336101
-                  * https://mui.com/material-ui/react-radio-button/
-                */}
                 <Controller
                   name="type"
                   defaultValue={BOARD_TYPES.PUBLIC}

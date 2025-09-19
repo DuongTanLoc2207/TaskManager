@@ -1,11 +1,15 @@
 
 import Box from '@mui/material/Box'
 import Card from './Card/Card'
+import { useSelector } from 'react-redux'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 function ListCards({ cards }) {
+  const isCtrlPressed = useSelector(state => state.activeBoard.isCtrlPressed)
+  const isSubCardMode = useSelector(state => state.activeBoard.isSubCardMode)
+
   return (
-    <SortableContext items={cards?.map(c => c._id)} strategy={verticalListSortingStrategy}>
+    <SortableContext items={(isCtrlPressed || isSubCardMode) ? [] : cards?.map(c => c._id)} strategy={verticalListSortingStrategy}>
       <Box sx={{
         p: '0 5px 5px 5px',
         m: '0 5px',

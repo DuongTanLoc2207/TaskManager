@@ -9,7 +9,6 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import MailIcon from '@mui/icons-material/Mail'
 import AccountBoxIcon from '@mui/icons-material/AccountBox'
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd'
-
 import { FIELD_REQUIRED_MESSAGE, singleFileValidator } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useSelector, useDispatch } from 'react-redux'
@@ -22,31 +21,22 @@ import { socketIoInstance } from '~/socketClient'
 function AccountTab() {
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
-
-  // Những thông tin của user để init vào form (key tương ứng với register phía dưới Field)
   const initialGeneralForm = {
     displayName: currentUser?.displayName
   }
-  // Sử dụng defaultValues để set giá trị mặc định cho các field cần thiết
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: initialGeneralForm
   })
 
   const submitChangeGeneralInformation = (data) => {
     const displayName = data.displayName?.trim()
-
-    // Nếu không có sự thay đổi gì về displayname thì không làm gì cả
     if (displayName === currentUser?.displayName) return
-
-    // Gọi API
     toast.promise(
       dispatch(updateUserAPI({ displayName })),
       { pending: 'Updating...' }
     ).then(res => {
-      // Kiểm tra không có lỗi (update thành công) thì mới thực hiện các hành động cần thiết
       if (!res.error) {
         toast.success('User updated successfully!')
-
         socketIoInstance.emit('FE_USER_DISPLAYNAME_UPDATED', {
           userId: currentUser._id,
           newDisplayName: res.payload.displayName
@@ -56,37 +46,25 @@ function AccountTab() {
   }
 
   const uploadAvatar = (e) => {
-    // Lấy file thông qua e.target?.files[0] và validate nó trước khi xử lý
-    // console.log('e.target?.files[0]: ', e.target?.files[0])
     const error = singleFileValidator(e.target?.files[0])
     if (error) {
       toast.error(error)
       return
     }
 
-    // Sử dụng FormData để xử lý dữ liệu liên quan tới file khi gọi API
     let reqData = new FormData()
     reqData.append('avatar', e.target?.files[0])
-    // console.log('reqData: ', reqData)
-    // for (const value of reqData.values()) {
-    //   console.log('reqData Value: ', value)
-    // }
-
-    // Gọi API
     toast.promise(
       dispatch(updateUserAPI(reqData)),
       { pending: 'Updating...' }
     ).then(res => {
       if (!res.error) {
         toast.success('User updated successfully!')
-
         socketIoInstance.emit('FE_USER_AVATAR_UPDATED', {
           userId: currentUser._id,
-          newAvatarUrl: res.payload.avatar // Giả sử API trả về updated user với avatar
+          newAvatarUrl: res.payload.avatar
         })
       }
-
-      // Clear giá trị của file input, nếu không sẽ không thể chọn cùng một file liên tiếp được
       e.target.value = ''
     })
   }

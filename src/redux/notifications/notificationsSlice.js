@@ -2,18 +2,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 
-// Khởi tạo giá trị của một Slice trong redux
 const initialState = {
   currentNotifications: []
 }
 
-// Các hành động gọi api (bất đồng bộ) và cập nhật dữ liệu vào Redux, dùng Middleware createAsyncThunk đi kèm với extraReducers
-// https://redux-toolkit.js.org/api/createAsyncThunk
 export const fetchInvitationsAPI = createAsyncThunk(
   'notifications/fetchInvitationsAPI',
   async () => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/invitations`)
-    // Lưu ý: axios sẽ trả kết quả về qua property là data
     return response.data
   }
 )
@@ -26,11 +22,9 @@ export const updateBoardInvitationAPI = createAsyncThunk(
   }
 )
 
-// Khởi tạo một slice trong kho lưu trữ - redux store
 export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
-  // Reducers: Nơi xử lý dữ liệu đồng bộ
   reducers: {
     clearCurrentNotifications: (state) => {
       state.currentNotifications = null
@@ -38,23 +32,18 @@ export const notificationsSlice = createSlice({
     updateCurrentNotifications: (state, action) => {
       state.currentNotifications = action.payload
     },
-    // Thêm mới một bản ghi notification vào đầu mảng currentNotifications
     addNotification: (state, action) => {
       const incomingInvitation = action.payload
-      // unshift là thêm phần từ vào đầu mảng, ngược lại với push
       state.currentNotifications.unshift(incomingInvitation)
     }
   },
-  // ExtraReducers: Xử lý dữ liệu bất đồng bộ
   extraReducers: (builder) => {
     builder.addCase(fetchInvitationsAPI.fulfilled, (state, action) => {
       let incomingInvitations = action.payload
-      // Đảo ngược lại mảng invitations nhận được để hiển thị cái mới nhất lên đầu
       state.currentNotifications = Array.isArray(incomingInvitations) ? incomingInvitations.reverse() : []
     })
     builder.addCase(updateBoardInvitationAPI.fulfilled, (state, action) => {
       const incomingInvitation = action.payload
-      // Cập nhật lại dữ liệu boardInvitation (bên trong nó sẽ có Status mới sau khi update)
       const getInvitation = state.currentNotifications.find(i => i._id === incomingInvitation._id)
       getInvitation.boardInvitation = incomingInvitation.boardInvitation
     })

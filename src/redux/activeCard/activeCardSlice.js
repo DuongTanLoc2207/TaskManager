@@ -1,51 +1,48 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-// Khởi tạo giá trị của một Slice trong redux
 const initialState = {
   currentActiveCard: null,
   isShowModalActiveCard: false
 }
 
-// Khởi tạo một slice trong kho lưu trữ - redux store
 export const activeCardSlice = createSlice({
   name: 'activeCard',
   initialState,
-  // Reducers: Nơi xử lý dữ liệu đồng bộ
   reducers: {
-    // Cần cặp ngoặc nhọn cho function trong reducer cho dù code bên trong chỉ có 1 dòng, đây là rule của Redux
-    // https://redux-toolkit.js.org/usage/immer-reducers#mutating-and-returning-state
     showModalActiveCard: (state) => {
       state.isShowModalActiveCard = true
     },
-
-    // Clear data và đóng modal ActiveCard
     clearAndHideCurrentActiveCard: (state) => {
       state.currentActiveCard = null
       state.isShowModalActiveCard = false
     },
-
     updateCurrentActiveCard: (state, action) => {
-      const fullCard = action.payload // action.payload là chuẩn đặt tên nhận dữ liệu vào reducer, gán nó ra một biến có nghĩa hơn
-      // xử lý dữ liệu nếu cần thiết
-      //...
-      // Update lại dữ liệu currentActiveCard trong Redux
-      state.currentActiveCard = fullCard
+      state.currentActiveCard = action.payload
+    },
+    updateSubCardsInActiveCard: (state, action) => {
+      const { subCard } = action.payload
+      if (state.currentActiveCard) {
+        state.currentActiveCard.subCards = state.currentActiveCard.subCards || []
+        const subCardIndex = state.currentActiveCard.subCards.findIndex(c => c._id === subCard._id)
+        if (subCardIndex >= 0) {
+          state.currentActiveCard.subCards[subCardIndex] = subCard
+        } else {
+          state.currentActiveCard.subCards.push(subCard)
+        }
+      }
     }
   },
-  // ExtraReducers: Xử lý dữ liệu bất đồng bộ
   // eslint-disable-next-line no-unused-vars
   extraReducers: (builder) => {}
 })
 
-// Action creators are generated for each case reducer function
-// Actions: Là nơi dành cho các components bên dưới gọi bằng dispatch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)
 export const {
   clearAndHideCurrentActiveCard,
   updateCurrentActiveCard,
-  showModalActiveCard
+  showModalActiveCard,
+  updateSubCardsInActiveCard
 } = activeCardSlice.actions
 
-// Selectors: Là nơi dành cho các components bên dưới gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra sử dụng
 export const selectCurrentActiveCard = (state) => {
   return state.activeCard.currentActiveCard
 }
@@ -54,5 +51,4 @@ export const selectIsShowModalActiveCard = (state) => {
   return state.activeCard.isShowModalActiveCard
 }
 
-// export default activeCardSlice.reducer
 export const activeCardReducer = activeCardSlice.reducer

@@ -32,46 +32,33 @@ function ListColumns({ columns }) {
       return
     }
 
-    // Tạo dữ liệu Column để gọi API
     const newColumnData = {
       title: trimmedTitle
     }
 
-    // Gọi API tạo mới column và làm mới dữ liệu state board
     const createdColumn = await createNewColumnAPI({
       ...newColumnData,
       boardId: board._id
     })
 
-    // Xử lý vấn đề kéo thả vào column rỗng khi mới tạo column
     createdColumn.cards = [generatePlaceholderCard(createdColumn)]
     createdColumn.cardOrderIds = [generatePlaceholderCard(createdColumn)._id]
 
-    // Cập nhật state board
-    // const newBoard = { ...board }
     const newBoard = cloneDeep(board)
     newBoard.columns.push(createdColumn)
     newBoard.columnOrderIds.push(createdColumn._id)
 
-    // Cập nhật dữ liêu board vào redux store
     dispatch(updateCurrentActiveBoard(newBoard))
-
-    // Emit sự kiện socket để notify các client khác
     socketIoInstance.emit('FE_COLUMN_CREATED', {
       boardId: board._id,
       createdColumn
     })
 
-    // Đóng trạng thái thêm column mới và clear input
     toggleNewColumnForm()
     setNewColumnTitle('')
   }
 
   return (
-    /**
-     * SortableContext yêu cầu item là một mảng dạng ['id-1', 'id-2'] chứ không phải [{id: 'id-1'}, {id: 'id-2'}],
-     * nếu không đúng thì vẫn kéo thả đc nhưng không có animation
-     */
     <SortableContext items={columns?.map(c => c._id)} strategy={horizontalListSortingStrategy}>
       <Box sx={{
         bgcolor: 'inherit',
@@ -86,7 +73,7 @@ function ListColumns({ columns }) {
           <Column key={column._id} column={column} />
         )}
 
-        {/* Box add another column CTA */}
+        {/* Box add another column */}
         {!openNewColumnForm
           ? <Box onClick={toggleNewColumnForm} sx={{
             minWidth: { xs: '220px', sm: '250px' },

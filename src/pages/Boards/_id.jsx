@@ -20,20 +20,27 @@ import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
 import { generatePlaceholderCard } from '~/utils/formatters'
-import { updateCardInBoard, deleteCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
-import { updateCurrentActiveCard, clearAndHideCurrentActiveCard, selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { deleteCardFromBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { updateCurrentActiveCard, clearAndHideCurrentActiveCard, selectCurrentActiveCard, selectIsShowModalActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import { makeSubCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { findCardInBoard, updateSubCardInTree, removeSubCardFromTree, findCardAncestors } from '~/utils/cardUtils'
 
 function Board() {
   const dispatch = useDispatch()
-  // Không dùng state của component nữa mà chuyển sang dùng state của redux
-  // const [board, setBoard] = useState(null)
   const board = useSelector(selectCurrentActiveBoard)
   const currentUser = useSelector(selectCurrentUser)
   const currentUserId = currentUser?._id
   const activeCard = useSelector(selectCurrentActiveCard)
+  const isShowModalActiveCard = useSelector(selectIsShowModalActiveCard)
+
+  const isShowModalActiveCardRef = useRef(isShowModalActiveCard)
+
+  useEffect(() => {
+    isShowModalActiveCardRef.current = isShowModalActiveCard
+  }, [isShowModalActiveCard])
 
   const navigate = useNavigate()
 
@@ -45,7 +52,6 @@ function Board() {
   }, [activeCard])
 
   useEffect(() => {
-    // Call API
     dispatch(fetchBoardDetailsAPI(boardId))
   }, [dispatch, boardId])
 
@@ -54,7 +60,6 @@ function Board() {
       socketIoInstance.emit('FE_JOIN_BOARD', board._id)
     }
 
-    // Listener cho create column realtime
     socketIoInstance.on('BE_COLUMN_CREATED', (data) => {
       if (data.boardId !== board._id) return
 
@@ -68,7 +73,6 @@ function Board() {
       if (data.boardId !== board._id) return
 
       const newBoard = cloneDeep(board)
-      // Update columns theo columnOrderIds mới từ BE
       newBoard.columns = data.columnOrderIds.map(id =>
         newBoard.columns.find(col => col._id === id) || {}
       ).filter(col => col._id)
@@ -120,7 +124,6 @@ function Board() {
 
       const newBoard = cloneDeep(board)
 
-      // Update prevColumn
       const prevColumn = newBoard.columns.find(c => c._id === data.prevColumnId)
       if (prevColumn) {
         prevColumn.cards = data.prevCardOrderIds.map(cardId =>
@@ -133,7 +136,6 @@ function Board() {
         }
       }
 
-      // Update nextColumn
       const nextColumn = newBoard.columns.find(c => c._id === data.nextColumnId)
       if (nextColumn) {
         nextColumn.cards = data.nextCardOrderIds.map(cardId => {
@@ -148,6 +150,54 @@ function Board() {
       dispatch(updateCurrentActiveBoard(newBoard))
     })
 
+    socketIoInstance.on('BE_CARD_MADE_SUBCARD', (data) => {
+      if (data.boardId !== board._id) return
+      dispatch(makeSubCardInBoard({
+        childCardId: data.childCardId,
+        parentCardId: data.parentCardId
+      }))
+      if (activeCardRef.current?._id === data.parentCardId) {
+        dispatch(updateCurrentActiveCard({
+          ...activeCardRef.current,
+          subCards: [...(activeCardRef.current.subCards || []), data.cardData]
+        }))
+      }
+    })
+
+    socketIoInstance.on('BE_SUBCARD_DELETED', (data) => {
+      if (!board?._id || data.boardId !== board._id) return
+
+      const newBoard = cloneDeep(board)
+      const column = newBoard.columns.find(col =>
+        col.cards.some(card => card._id === data.parentCardId)
+      )
+      if (!column) {
+        return
+      }
+
+      const parentCard = column.cards.find(c => c._id === data.parentCardId)
+      if (!parentCard) {
+        return
+      }
+
+      parentCard.subCards = removeSubCardFromTree(parentCard.subCards, data.cardId)
+      dispatch(updateCurrentActiveBoard(newBoard))
+
+      if (activeCardRef.current?._id === data.parentCardId) {
+        const updatedParentCard = findCardInBoard(newBoard, data.parentCardId)
+        if (updatedParentCard) {
+          toast.info('A sub-card has been deleted by another user!')
+          dispatch(updateCurrentActiveCard(cloneDeep(updatedParentCard)))
+        }
+      }
+
+      if (activeCardRef.current?._id === data.cardId) {
+        toast.error('Sub-card has been deleted by another user!')
+        dispatch(clearAndHideCurrentActiveCard())
+      }
+    })
+
+
     socketIoInstance.on('BE_COLUMN_UPDATED', (data) => {
       if (data.boardId !== board._id) return
 
@@ -160,20 +210,34 @@ function Board() {
     })
 
     socketIoInstance.on('BE_CARD_UPDATED', (data) => {
-      if (data.boardId !== board._id) return
+      if (!board?._id || data.boardId !== board._id) return
       const newBoard = cloneDeep(board)
-      const column = newBoard.columns.find(col => col._id === data.columnId)
-      if (column) {
-        const card = column.cards.find(c => c._id === data.cardId)
-        if (card) {
-          card.title = data.newTitle
-          const updatedCard = { ...card, title: data.newTitle, columnId: data.columnId }
-          dispatch(updateCardInBoard(updatedCard))
-          // Cập nhật currentActiveCard bất kể modal có mở hay không
-          dispatch(updateCurrentActiveCard(updatedCard))
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (!cardToUpdate) {
+        toast.error('Card not found:', data.cardId)
+        return
+      }
+      cardToUpdate.title = data.newTitle
+      if (data.parentCardId) {
+        const parentCard = findCardInBoard(newBoard, data.parentCardId)
+        if (parentCard) {
+          parentCard.subCards = updateSubCardInTree(parentCard.subCards, { ...cardToUpdate, title: data.newTitle })
+        } else {
+          toast.error('Parent card not found:', data.parentCardId)
         }
       }
       dispatch(updateCurrentActiveBoard(newBoard))
+      if (activeCardRef.current?._id === data.cardId && isShowModalActiveCardRef.current) {
+        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, title: data.newTitle }))
+      }
+
+      const ancestorCardIds = findCardAncestors(newBoard, data.cardId)
+      if (ancestorCardIds.includes(activeCardRef.current?._id) && isShowModalActiveCardRef.current) {
+        const updatedParentCard = findCardInBoard(newBoard, activeCardRef.current._id)
+        if (updatedParentCard) {
+          dispatch(updateCurrentActiveCard(cloneDeep(updatedParentCard)))
+        }
+      }
     })
 
     socketIoInstance.on('BE_CARD_DELETED', (data) => {
@@ -203,148 +267,156 @@ function Board() {
 
     socketIoInstance.on('BE_COMMENT_ADDED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const column = newBoard.columns.find(col => col.cards.some(card => card._id === data.cardId))
-      if (!column) return
-
-      const card = column.cards.find(c => c._id === data.cardId)
-      if (!card) return
-
-      // unshift comment mới vào đầu mảng
-      card.comments = [data.comment, ...(card.comments || [])]
-
-      // Update redux
-      dispatch(updateCurrentActiveBoard(newBoard))
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...card, comments: card.comments }))
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.comments = [data.comment, ...(cardToUpdate.comments || [])]
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
+        }
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            comments: [data.comment, ...(activeCardRef.current.comments || [])]
+          }))
+        }
       }
     })
 
 
     socketIoInstance.on('BE_COMMENT_DELETED', (data) => {
-      if (!board?._id || data.boardId !== board._id) return
-
+      if (data.boardId !== board._id) return
       const newBoard = cloneDeep(board)
-
-      // Tìm column chứa card
-      const column = newBoard.columns.find(col => col.cards.some(card => card._id === data.cardId))
-      if (!column) return
-
-      // Update comments của card
-      const card = column.cards.find(c => c._id === data.cardId)
-      if (!card) return
-
-      // Tìm comment vừa bị xóa
-      const deletedComment = card.comments.find(c => c._id === data.commentId)
-
-      card.comments = (card.comments || []).filter(comment => comment._id !== data.commentId)
-
-      // Update Board + ActiveCard
-      dispatch(updateCurrentActiveBoard(newBoard))
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...card }))
-      }
-
-      // Chỉ toast nếu comment của currentUser bị người khác xóa
-      if (deletedComment && deletedComment.userId === currentUser._id) {
-        toast.warning('Your comment has been deleted by another user.')
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.comments = cardToUpdate.comments.filter(c => c._id !== data.commentId)
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
+        }
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            comments: cardToUpdate.comments
+          }))
+        }
       }
     })
 
-    // Listener cho add attachment realtime
     socketIoInstance.on('BE_ATTACHMENT_ADDED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const columnToUpdate = newBoard.columns.find(column => column._id === data.columnId)
-      if (columnToUpdate) {
-        const cardToUpdate = columnToUpdate.cards.find(card => card._id === data.cardId)
-        if (cardToUpdate) {
-          cardToUpdate.attachments = data.attachments
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.attachments = [...(cardToUpdate.attachments || []), ...data.attachments]
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
         }
-      }
-      dispatch(updateCurrentActiveBoard(newBoard))
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, attachments: data.attachments }))
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            attachments: cardToUpdate.attachments
+          }))
+        }
       }
     })
 
-    // Listener cho delete attachment realtime
     socketIoInstance.on('BE_ATTACHMENT_DELETED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const columnToUpdate = newBoard.columns.find(column => column._id === data.columnId)
-      if (columnToUpdate) {
-        const cardToUpdate = columnToUpdate.cards.find(card => card._id === data.cardId)
-        if (cardToUpdate) {
-          cardToUpdate.attachments = cardToUpdate.attachments.filter(att => att.url !== data.attachmentUrl)
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.attachments = cardToUpdate.attachments.filter(att => att.url !== data.attachmentUrl)
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
         }
-      }
-      dispatch(updateCurrentActiveBoard(newBoard))
-
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, attachments: activeCard.attachments.filter(att => att.url !== data.attachmentUrl) }))
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            attachments: cardToUpdate.attachments
+          }))
+        }
       }
     })
 
     socketIoInstance.on('BE_CARD_COVER_ADDED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const columnToUpdate = newBoard.columns.find(column => column._id === data.columnId)
-      if (columnToUpdate) {
-        const cardToUpdate = columnToUpdate.cards.find(card => card._id === data.cardId)
-        if (cardToUpdate) {
-          cardToUpdate.cover = data.cover
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.cover = data.cover
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
         }
-      }
-      dispatch(updateCurrentActiveBoard(newBoard))
-
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, cover: data.cover }))
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            cover: data.cover
+          }))
+        }
       }
     })
 
     socketIoInstance.on('BE_CARD_COVER_REMOVED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const columnToUpdate = newBoard.columns.find(column => column._id === data.columnId)
-      if (columnToUpdate) {
-        const cardToUpdate = columnToUpdate.cards.find(card => card._id === data.cardId)
-        if (cardToUpdate) {
-          cardToUpdate.cover = null
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.cover = null
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
         }
-      }
-      dispatch(updateCurrentActiveBoard(newBoard))
-
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({ ...activeCardRef.current, cover: null }))
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            cover: null
+          }))
+        }
       }
     })
 
     socketIoInstance.on('BE_CARD_MEMBERS_UPDATED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const columnToUpdate = newBoard.columns.find(column => column._id === data.columnId)
-      if (columnToUpdate) {
-        const cardToUpdate = columnToUpdate.cards.find(card => card._id === data.cardId)
-        if (cardToUpdate) {
-          cardToUpdate.memberIds = data.memberIds
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.memberIds = data.memberIds
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
+          }
         }
-      }
-
-      // Cập nhật redux
-      dispatch(updateCurrentActiveBoard(newBoard))
-
-      if (activeCardRef.current?._id === data.cardId) {
-        dispatch(updateCurrentActiveCard({
-          ...activeCardRef.current,
-          memberIds: data.memberIds
-        }))
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            memberIds: data.memberIds
+          }))
+        }
       }
     })
 
@@ -367,7 +439,6 @@ function Board() {
       if (!board || data.boardId !== board._id) return
       const { user } = data
       const newBoard = cloneDeep(board)
-      // Khởi tạo FE_allUsers nếu chưa có
       newBoard.FE_allUsers = newBoard.FE_allUsers || []
       if (!newBoard.FE_allUsers.some(u => u._id === user._id)) {
         newBoard.FE_allUsers = [...newBoard.FE_allUsers, user]
@@ -377,24 +448,24 @@ function Board() {
 
     socketIoInstance.on('BE_CARD_DESCRIPTION_UPDATED', (data) => {
       if (data.boardId !== board._id) return
-
       const newBoard = cloneDeep(board)
-      const column = newBoard.columns.find(col => col._id === data.columnId)
-      if (column) {
-        const card = column.cards.find(c => c._id === data.cardId)
-        // console.log('🚀 ~ Board ~ card:', card)
-        if (card) {
-          card.description = data.newDescription
-          // Cập nhật card trong board
-          dispatch(updateCardInBoard({ ...card, description: data.newDescription }))
-          // Nếu modal card đang mở, cập nhật activeCard
-          if (activeCardRef.current?._id === data.cardId) {
-            dispatch(updateCurrentActiveCard({ ...activeCardRef.current, description: data.newDescription }))
+      const cardToUpdate = findCardInBoard(newBoard, data.cardId)
+      if (cardToUpdate) {
+        cardToUpdate.description = data.newDescription
+        if (data.parentCardId) {
+          const parentCard = findCardInBoard(newBoard, data.parentCardId)
+          if (parentCard) {
+            parentCard.subCards = updateSubCardInTree(parentCard.subCards, cardToUpdate)
           }
         }
+        dispatch(updateCurrentActiveBoard(newBoard))
+        if (activeCardRef.current?._id === data.cardId) {
+          dispatch(updateCurrentActiveCard({
+            ...activeCardRef.current,
+            description: data.newDescription
+          }))
+        }
       }
-      // Cập nhật toàn bộ board
-      dispatch(updateCurrentActiveBoard(newBoard))
     })
 
     socketIoInstance.on('BE_USER_AVATAR_UPDATED', (data) => {
@@ -405,7 +476,6 @@ function Board() {
         dispatch(updateCurrentActiveBoard(newBoard))
       }
 
-      // Cập nhật trong activeCard comments nếu đang mở
       if (activeCardRef.current) {
         const updatedComments = activeCardRef.current.comments?.map(comment =>
           comment.userId === data.userId ? { ...comment, userAvatar: data.newAvatarUrl } : comment
@@ -422,7 +492,6 @@ function Board() {
         dispatch(updateCurrentActiveBoard(newBoard))
       }
 
-      // Cập nhật trong activeCard comments nếu đang mở
       if (activeCardRef.current) {
         const updatedComments = activeCardRef.current.comments?.map(comment =>
           comment.userId === data.userId ? { ...comment, userDisplayName: data.newDisplayName } : comment
@@ -432,13 +501,14 @@ function Board() {
     })
 
     return () => {
-      socketIoInstance.off('BE_COLUMN_MOVED')
       socketIoInstance.off('BE_COLUMN_CREATED')
+      socketIoInstance.off('BE_COLUMN_MOVED')
       socketIoInstance.off('BE_COLUMN_DELETED')
       socketIoInstance.off('BE_CARD_CREATED')
-      socketIoInstance.off('BE_COLUMN_MOVED')
       socketIoInstance.off('BE_CARD_MOVED_IN_COLUMN')
       socketIoInstance.off('BE_CARD_MOVED')
+      socketIoInstance.off('BE_CARD_MADE_SUBCARD')
+      socketIoInstance.off('BE_SUBCARD_DELETED')
       socketIoInstance.off('BE_COLUMN_UPDATED')
       socketIoInstance.off('BE_CARD_UPDATED')
       socketIoInstance.off('BE_CARD_DELETED')
@@ -461,32 +531,24 @@ function Board() {
 
   // Func gọi API và xử lý kéo thả column
   const moveColumns = (dndOrderedColumns) => {
-    // Update dữ liệu state board
     const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
-    // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    // Gọi API update board
     updateBoardDetailsAPI(newBoard._id, { columnOrderIds: dndOrderedColumnsIds })
   }
 
-  // Khi di chuyển card trong một column thì chỉ cần gọi API để cập nhập columnOrderIds của column
   const moveCardInTheSameColumn = (dndOrderedCards, dndOrderedCardIds, columnId) => {
-    // Update dữ liệu state board
-    // const newBoard = { ...board }
     const newBoard = cloneDeep(board)
     const columnToUpdate = newBoard.columns.find(column => column._id === columnId)
     if (columnToUpdate) {
       columnToUpdate.cards = dndOrderedCards
       columnToUpdate.cardOrderIds = dndOrderedCardIds
     }
-    // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    // Emit sự kiện Socket.IO
     socketIoInstance.emit('FE_CARD_MOVED_IN_COLUMN', {
       boardId: board._id,
       columnId,
@@ -494,23 +556,18 @@ function Board() {
       actor: socketIoInstance.id
     })
 
-    // Gọi API update column
     updateColumnDetailsAPI(columnId, { cardOrderIds: dndOrderedCardIds })
   }
 
   const moveCardToDifferentColumn = (currentCardId, prevColumnId, nextColumnId, dndOrderedColumns) => {
-    // Update dữ liệu state board
     const dndOrderedColumnsIds = dndOrderedColumns.map(c => c._id)
     const newBoard = { ...board }
     newBoard.columns = dndOrderedColumns
     newBoard.columnOrderIds = dndOrderedColumnsIds
-    // setBoard(newBoard)
     dispatch(updateCurrentActiveBoard(newBoard))
 
-    // Gọi API xử lý phía BE
     let prevCardOrderIds = dndOrderedColumns.find(c => c._id === prevColumnId)?.cardOrderIds
 
-    // Xử lý vấn đề khi kéo card cuối cùng ra khỏi column, cần xóa placeholder card trước khi gửi cho BE
     if (prevCardOrderIds[0].includes('placeholder-card') ) {
       prevCardOrderIds = []
     }
@@ -522,7 +579,7 @@ function Board() {
       prevCardOrderIds,
       nextColumnId,
       nextCardOrderIds: dndOrderedColumns.find(c => c._id === nextColumnId)?.cardOrderIds,
-      actor: socketIoInstance.id // Gửi socket.id của client
+      actor: socketIoInstance.id
     })
 
     moveCardToDifferentColumnAPI({
@@ -542,14 +599,11 @@ function Board() {
 
   return (
     <Container disableGutters maxWidth={false} sx={{ height: '100vh' }}>
-      {/* Modal Active Card, check đóng/mở dựa theo cái State isShowModalActiveCard lưu trong Redux */}
       <ActiveCard/>
-
       <AppBar/>
       <BoardBar board={board} />
       <BoardContent
         board={board}
-
         moveColumns={moveColumns}
         moveCardInTheSameColumn={moveCardInTheSameColumn}
         moveCardToDifferentColumn={moveCardToDifferentColumn}

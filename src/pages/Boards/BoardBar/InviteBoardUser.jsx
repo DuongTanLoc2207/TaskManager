@@ -13,7 +13,6 @@ import { inviteUserToBoardAPI } from '~/apis'
 import { socketIoInstance } from '~/socketClient'
 
 function InviteBoardUser({ boardId }) {
-  //Xử lý Popover để ẩn hoặc hiện một popup nhỏ
   const [anchorPopoverElement, setAnchorPopoverElement] = useState(null)
   const isOpenPopover = Boolean(anchorPopoverElement)
   const popoverId = isOpenPopover ? 'invite-board-user-popover' : undefined
@@ -25,11 +24,8 @@ function InviteBoardUser({ boardId }) {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm()
   const submitInviteUserToBoard = (data) => {
     const { inviteeEmail } = data
-    // console.log('inviteeEmail:', inviteeEmail)
 
-    // Gọi API mời một người dùng nào đó vào làm thành viên của Board
     inviteUserToBoardAPI({ inviteeEmail, boardId }).then(invitation => {
-      // Clear thẻ input sử dụng react-hook-form bằng setValue, đồng thời đóng popover lại
       setValue('inviteeEmail', null)
       setAnchorPopoverElement(null)
 
