@@ -155,7 +155,7 @@ function RegisterForm() {
                 type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 error={!!errors['password_confirmation']}
-                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
+                sx={{ '& .MuiInputBase-input': { fontSize: { xs: '0.8rem', sm: '0.9rem' } } }}
                 inputRef={confirmRef}
                 InputProps={{
                   endAdornment: (

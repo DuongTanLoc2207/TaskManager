@@ -82,7 +82,7 @@ function Card({ card }) {
     >
       {overCardId === card._id && (isCtrlPressed || isSubCardMode) && !card?.FE_PlaceholderCard && (
         <StyledTooltip
-          title="Ctrl + Drop to make sub-card"
+          title="Drop to make sub-card"
           placement="top"
           arrow
           open

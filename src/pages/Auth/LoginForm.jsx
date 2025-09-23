@@ -98,16 +98,16 @@ function LoginForm() {
           </Box>
           <Box sx={{ marginTop: '1em', display: 'flex', justifyContent: 'center', flexDirection: 'column', padding: '0 1em' }}>
             {verifiedEmail &&
-              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+              <Alert severity="success" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                 Your email&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>{verifiedEmail}</Typography>
+                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>{verifiedEmail}</Typography>
                 &nbsp;has been verified.<br />Now you can login to enjoy our services! Have a good day!
               </Alert>
             }
             {registeredEmail &&
-              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>
+              <Alert severity="info" sx={{ '.MuiAlert-message': { overflow: 'hidden' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>
                 An email has been sent to&nbsp;
-                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' } }}>{registeredEmail}</Typography>
+                <Typography variant="span" sx={{ fontWeight: 'bold', '&:hover': { color: '#fdba26' }, fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' } }}>{registeredEmail}</Typography>
                 <br />Please check and verify your account before logging in!
               </Alert>
             }
