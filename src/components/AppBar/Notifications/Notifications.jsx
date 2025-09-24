@@ -37,8 +37,6 @@ function Notifications() {
   const open = Boolean(anchorEl)
   const handleClickNotificationIcon = (event) => {
     setAnchorEl(event.currentTarget)
-
-    // Khi click vào phần icon thông báo thì set lại trạng thái của biến newNotification về false
     setNewNotification(false)
   }
 
@@ -48,19 +46,14 @@ function Notifications() {
 
   const navigate = useNavigate()
 
-  // Lấy dữ liệu notifications từ redux
   const notifications = useSelector(selectCurrentNotifications)
 
-  // Biến state kiểm tra có thông báo mới hay không
   const [newNotification, setNewNotification] = useState(false)
 
-  // Lấy dữ liệu user từ trong Redux
   const currentUser = useSelector(selectCurrentUser)
 
-  // Filter state
   const [filter, setFilter] = useState('ALL')
 
-  // Filter logic
   const filteredNotifications = notifications.filter(n => {
     if (filter === 'ALL') return true
     if (filter === 'PENDING') return n.boardInvitation.status === BOARD_INVITATION_STATUS.PENDING
@@ -68,7 +61,6 @@ function Notifications() {
     return true
   })
 
-  // Fetch danh sách các lời mời invitations
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(fetchInvitationsAPI()).then(res => {
@@ -80,13 +72,9 @@ function Notifications() {
       }
     })
 
-    // Tạo function xử lý khi nhận được sự kiện real-time
     const onReceiveNewInvitation = (invitation) => {
-      // Nếu user đang đăng nhập hiện tại mà chúng ta lưu trong redux chính là invitee trong bản ghi invitation
       if (invitation.inviteeId === currentUser._id) {
-        // Bước 1: Thêm bản ghi invitation mới vào trong redux
         dispatch(addNotification(invitation))
-        // Bước 2: Cập nhật trạng thái đang có thông báo đến
         setNewNotification(true)
       }
     }
@@ -96,7 +84,7 @@ function Notifications() {
         const pendingExists = res.payload?.some(
           inv => inv.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING
         )
-        setNewNotification(pendingExists) // Cập nhật newNotification sau khi board bị xóa
+        setNewNotification(pendingExists)
       })
     }
 
@@ -108,14 +96,12 @@ function Notifications() {
     }
   }, [dispatch, currentUser._id])
 
-  // Cập nhật trạng thái - status của lời mời join board
   const updateBoardInvitation = (status, invitationId) => {
     dispatch(updateBoardInvitationAPI({ status, invitationId }))
       .then(res => {
         const invitation = res.payload.boardInvitation
         if (status === BOARD_INVITATION_STATUS.ACCEPTED) {
           navigate(`/boards/${invitation.boardId}`)
-          // Phát sự kiện socket để cập nhật FE_allUsers cho các client khác
           socketIoInstance.emit('FE_ADD_USER_TO_BOARD', {
             boardId: invitation.boardId,
             userId: currentUser._id,
@@ -135,8 +121,6 @@ function Notifications() {
       <Tooltip title="Notifications">
         <Badge
           color="warning"
-          // variant="none"
-          // variant="dot"
           variant={newNotification ? 'dot' : 'none'}
           sx={{ cursor: 'pointer' }}
           id="basic-button-open-notification"
@@ -193,7 +177,7 @@ function Notifications() {
             borderColor: 'divider',
             mb: 1,
             '& .MuiTab-root': {
-              fontSize: { xs: '0.8rem', sm: '0.9rem', md: '1rem' }
+              fontSize: { xs: '0.8rem', sm: '0.9rem', md: '0.95rem' }
             } }}
         >
           <Tab label="All" value="ALL" />
@@ -211,7 +195,7 @@ function Notifications() {
           <Box key={index}>
             <MenuItem sx={{
               width: '100%',
-              fontSize: { xs: '0.85rem', sm: '0.95rem', md: '1rem' }
+              fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }
             }}>
               <Box sx={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {/* Nội dung */}

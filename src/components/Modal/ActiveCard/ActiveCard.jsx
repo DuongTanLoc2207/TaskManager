@@ -634,7 +634,7 @@ function ActiveCard() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                   <CreditCardIcon />
                   <Typography variant="span" sx={{ fontWeight: '600', fontSize: { xs: '16px', sm: '20px' } }}>
-                    Sub-Cards
+                    Sub-Card
                   </Typography>
                 </Box>
                 <SubCardTree
