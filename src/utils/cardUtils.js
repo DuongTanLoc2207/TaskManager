@@ -24,7 +24,7 @@ export const findCardInTree = (subCards, cardId) => {
 export const updateSubCardInTree = (subCards, updatedCard) => {
   return subCards.map(card => {
     if (card._id === updatedCard._id) {
-      return { ...card, ...updatedCard } // Merge updates
+      return { ...card, ...updatedCard }
     }
     if (card.subCards) {
       return { ...card, subCards: updateSubCardInTree(card.subCards, updatedCard) }
@@ -35,8 +35,8 @@ export const updateSubCardInTree = (subCards, updatedCard) => {
 
 export const removeSubCardFromTree = (subCards, cardId) => {
   return (subCards || []).filter(sub => {
-    if (sub._id === cardId) return false // Xóa sub-card khớp
-    sub.subCards = removeSubCardFromTree(sub.subCards, cardId) // Đệ quy vào subCards
+    if (sub._id === cardId) return false
+    sub.subCards = removeSubCardFromTree(sub.subCards, cardId)
     return true
   })
 }

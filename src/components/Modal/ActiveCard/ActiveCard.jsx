@@ -86,7 +86,7 @@ const StyledTreeItem = styled(TreeItem)(({ theme }) => ({
     opacity: 1
   },
   '& .MuiTreeItem-root': {
-    marginLeft: '16px' // Thụt đầu dòng cho các cấp lồng nhau
+    marginLeft: '16px'
   }
 }))
 

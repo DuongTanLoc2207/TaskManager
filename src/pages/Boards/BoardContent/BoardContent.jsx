@@ -56,7 +56,7 @@ function BoardContent({
   // Điểm va chạm cuối cùng trước đó
   const lastOverId = useRef(null)
 
-  // Listener cho Shift key
+  // Listener cho Ctrl key
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Control') {
