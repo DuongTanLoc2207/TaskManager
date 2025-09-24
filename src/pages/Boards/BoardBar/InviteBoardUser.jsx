@@ -35,7 +35,7 @@ function InviteBoardUser({ boardId }) {
 
   return (
     <Box>
-      <Tooltip title="Invite user to this board!">
+      <Tooltip title="Invite user to this board">
         <Button
           aria-describedby={popoverId}
           onClick={handleTogglePopover}
@@ -60,10 +60,15 @@ function InviteBoardUser({ boardId }) {
         onClose={handleTogglePopover}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        PaperProps={{
+          sx: {
+            width: 320
+          }
+        }}
       >
-        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '100%', maxWidth: '320px' }}>
+        <form onSubmit={handleSubmit(submitInviteUserToBoard)} style={{ width: '100%', maxWidth: '450px' }}>
           <Box sx={{ p: '15px 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>Invite User To This Board!</Typography>
+            <Typography variant="span" sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>Invite User To This Board</Typography>
             <Box>
               <TextField
                 autoFocus
