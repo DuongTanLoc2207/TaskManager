@@ -197,7 +197,7 @@ function Notifications() {
               width: '100%',
               fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' }
             }}>
-              <Box sx={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {/* Nội dung */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <GroupAddIcon fontSize="small" />
