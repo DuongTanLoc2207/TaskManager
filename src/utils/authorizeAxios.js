@@ -66,7 +66,7 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
         })
     }
 
-    return refreshTokenPromise.then(accessToken => {
+    return refreshTokenPromise.then(() => {
       // Return lại axios instance kết hợp các originalRequests để gọi lại những api ban đầu bị lỗi
       return authorizedAxiosInstance(originalRequests)
     })
