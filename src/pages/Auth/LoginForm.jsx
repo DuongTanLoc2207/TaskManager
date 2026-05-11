@@ -48,7 +48,11 @@ function LoginForm() {
       dispatch(loginUserAPI({ email, password })),
       { pending: 'Logging in...' }
     ).then(res => {
-      if (!res.error) navigate('/')
+      if (!res.error) {
+        localStorage.setItem('accessToken', res.payload.accessToken)
+        localStorage.setItem('refreshToken', res.payload.refreshToken)
+        navigate('/')
+      }
     })
   }
 
