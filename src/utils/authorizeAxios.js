@@ -53,6 +53,7 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
     if (!refreshTokenPromise) {
       refreshTokenPromise = refreshTokenAPI()
         .then(data => {
+          localStorage.setItem('accessToken', data.accessToken)
           return data?.accessToken
         })
         .catch((_error) => {
