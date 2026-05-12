@@ -12,6 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LockResetIcon from '@mui/icons-material/LockReset'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { ReactComponent as Logo } from '~/assets/logo.svg'
 import { resetPasswordAPI } from '~/apis'
 import { toast } from 'react-toastify'
@@ -28,6 +29,8 @@ function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
+  const [tokenError, setTokenError] = useState('')
+
   const passwordRef = useRef(null)
   const confirmPasswordRef = useRef(null)
 
@@ -41,19 +44,31 @@ function ResetPassword() {
       return
     }
 
-    toast.promise(
-      resetPasswordAPI({
-        token,
-        password
-      }),
-      {
-        pending: 'Resetting password...'
-      }
-    ).then(() => {
+    try {
+      await toast.promise(
+        resetPasswordAPI({
+          token,
+          password
+        }),
+        {
+          pending: 'Resetting password...'
+        }
+      )
+
       toast.success('Password reset successfully!')
 
       navigate('/login')
-    })
+
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message
+
+      if (
+        errorMessage === 'Invalid reset token!' ||
+        errorMessage === 'Reset token has expired!'
+      ) {
+        setTokenError(errorMessage)
+      }
+    }
   }
 
   const handleClickShowPassword = () => {
@@ -90,6 +105,81 @@ function ResetPassword() {
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault()
+  }
+
+  if (tokenError) {
+    return (
+      <Zoom in={true} style={{ transitionDelay: '200ms' }}>
+        <MuiCard sx={{
+          width: { xs: 320, sm: 360, md: 400 },
+          maxWidth: '100%',
+          marginTop: { xs: '4em', sm: '6em' },
+          mx: 'auto'
+        }}>
+          <Box sx={{
+            margin: '1em',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 1
+          }}>
+            <Avatar sx={{
+              bgcolor: 'error.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}>
+              <ErrorOutlineIcon sx={{ fontSize: { xs: '18px', sm: '20px', md: '24px' } }} />
+            </Avatar>
+
+            <Avatar sx={{
+              bgcolor: 'primary.main',
+              width: { xs: 36, sm: 40, md: 48 },
+              height: { xs: 36, sm: 40, md: 48 }
+            }}>
+              <Logo style={{ width: '80%', height: '80%' }} />
+            </Avatar>
+          </Box>
+
+          <Box sx={{
+            padding: '0 2em 2em 2em',
+            textAlign: 'center'
+          }}>
+            <Typography
+              variant="h5"
+              sx={{
+                mb: 2,
+                color: 'error.main'
+              }}
+            >
+              Reset Link Invalid
+            </Typography>
+
+            <Typography>
+              {tokenError}
+            </Typography>
+
+            <Typography sx={{ mt: 2 }}>
+              Please request a new password reset link.
+            </Typography>
+
+            <Box sx={{ mt: 3 }}>
+              <Link
+                to="/forgot-password"
+                style={{ textDecoration: 'none' }}
+              >
+                <Typography
+                  sx={{
+                    color: 'primary.main',
+                    '&:hover': { color: '#ffbb39' }
+                  }}
+                >
+                  Back to Forgot Password
+                </Typography>
+              </Link>
+            </Box>
+          </Box>
+        </MuiCard>
+      </Zoom>
+    )
   }
 
   return (
