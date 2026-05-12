@@ -52,6 +52,23 @@ export const verifyUserAPI = async (data) => {
   return response.data
 }
 
+export const forgotPasswordAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(
+    `${API_ROOT}/v1/users/forgot-password`,
+    data
+  )
+  return response.data
+}
+
+export const resetPasswordAPI = async (data) => {
+  const response = await authorizedAxiosInstance.put(
+    `${API_ROOT}/v1/users/reset-password`,
+    data
+  )
+
+  return response.data
+}
+
 export const refreshTokenAPI = async () => {
   const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/refresh_token`)
   return response.data

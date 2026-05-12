@@ -5,11 +5,15 @@ import RegisterForm from './RegisterForm'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import authBg from '~/assets/auth/login-register-bg.jpg'
+import ForgotPassword from './ForgotPassword'
+import ResetPassword from './ResetPassword'
 
 function Auth() {
   const location = useLocation()
   const isLogin = location.pathname === '/login'
   const isRegister = location.pathname === '/register'
+  const isForgotPassword = location.pathname === '/forgot-password'
+  const isResetPassword = location.pathname === '/reset-password'
 
   const currentUser = useSelector(selectCurrentUser)
   if (currentUser) {
@@ -31,6 +35,8 @@ function Auth() {
     }}>
       {isLogin && <LoginForm />}
       {isRegister && <RegisterForm />}
+      {isForgotPassword && <ForgotPassword />}
+      {isResetPassword && <ResetPassword />}
     </Box>
   )
 }
